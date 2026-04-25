@@ -1,0 +1,385 @@
+import express from 'express';
+import initSqlJs from 'sql.js';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import { writeFileSync, existsSync, readFileSync } from 'fs';
+
+dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const app = express();
+const PORT = process.env.PORT || 3001;
+const DB_PATH = join(__dirname, 'ppdb.db');
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+let db;
+let SQL;
+
+// Initialize database
+async function initDb() {
+  try {
+    SQL = await initSqlJs();
+    console.log('sql.js initialized');
+
+    // Load existing DB or create new
+    try {
+      if (existsSync(DB_PATH)) {
+        const fileBuffer = readFileSync(DB_PATH);
+        db = new SQL.Database(fileBuffer);
+        console.log('Loaded existing database from:', DB_PATH);
+      } else {
+        db = new SQL.Database();
+        console.log('Created new database');
+      }
+    } catch (err) {
+      console.error('Error loading database:', err);
+      db = new SQL.Database();
+    }
+
+    // Create tables and indexes
+    db.run(`
+      CREATE TABLE IF NOT EXISTS students (
+        _id TEXT PRIMARY KEY,
+        NAMA_LENGKAP TEXT NOT NULL,
+        NAMA_PANGGILAN TEXT,
+        JENIS_KELAMIN TEXT NOT NULL,
+        TEMPAT_LAHIR TEXT NOT NULL,
+        TANGGAL_LAHIR TEXT NOT NULL,
+        AGAMA TEXT NOT NULL,
+        KEWARGANEGARAAN TEXT NOT NULL,
+        ANAK_KE TEXT NOT NULL,
+        SAUDARA_KANDUNG TEXT DEFAULT '0',
+        SAUDARA_TIRI TEXT DEFAULT '0',
+        SAUDARA_ANGKAT TEXT DEFAULT '0',
+        BAHASA_SEHARI TEXT NOT NULL,
+        ALAMAT TEXT NOT NULL,
+        NOMOR_TELEPON TEXT NOT NULL,
+        TINGGAL_DENGAN TEXT NOT NULL,
+        JARAK_KE_SEKOLAH TEXT NOT NULL,
+        ALAT_TRANSPORTASI TEXT NOT NULL,
+        BERAT_BADAN TEXT NOT NULL,
+        TINGGI_BADAN TEXT NOT NULL,
+        GOLONGAN_DARAH TEXT NOT NULL,
+        PENYAKIT TEXT NOT NULL,
+        ASAL_SD TEXT NOT NULL,
+        NOMOR_STTB_SD TEXT NOT NULL,
+        TANGGAL_STTB_SD TEXT NOT NULL,
+        LAMA_SD TEXT NOT NULL,
+        ASAL_SMP TEXT NOT NULL,
+        NOMOR_STTB_SMP TEXT NOT NULL,
+        TANGGAL_STTB_SMP TEXT NOT NULL,
+        LAMA_SMP TEXT NOT NULL,
+        NAMA_AYAH TEXT NOT NULL,
+        TTL_AYAH TEXT NOT NULL,
+        ALAMAT_AYAH TEXT NOT NULL,
+        TELEPON_AYAH TEXT NOT NULL,
+        PEKERJAAN_AYAH TEXT NOT NULL,
+        PENGHASILAN_AYAH TEXT NOT NULL,
+        PENDIDIKAN_AYAH TEXT NOT NULL,
+        KEWARGANEGARAAN_AYAH TEXT NOT NULL,
+        NAMA_IBU TEXT NOT NULL,
+        TTL_IBU TEXT NOT NULL,
+        ALAMAT_IBU TEXT NOT NULL,
+        TELEPON_IBU TEXT NOT NULL,
+        PEKERJAAN_IBU TEXT NOT NULL,
+        PENGHASILAN_IBU TEXT NOT NULL,
+        PENDIDIKAN_IBU TEXT NOT NULL,
+        KEWARGANEGARAAN_IBU TEXT NOT NULL,
+        NAMA_WALI TEXT,
+        ALAMAT_WALI TEXT,
+        TELEPON_WALI TEXT,
+        JURUSAN TEXT NOT NULL,
+        KEGEMARAN_OLAHRAGA TEXT NOT NULL,
+        KEGEMARAN_KEMASYARAKATAN TEXT NOT NULL,
+        KEGEMARAN_HASTA_KARYA TEXT NOT NULL,
+        createdAt TEXT NOT NULL,
+        updatedAt TEXT
+      )
+    `);
+    console.log('Table created/verified');
+
+    // Create indexes
+    try {
+      db.run(`CREATE INDEX IF NOT EXISTS idx_students_name ON students(NAMA_LENGKAP)`);
+      db.run(`CREATE INDEX IF NOT EXISTS idx_students_created ON students(createdAt)`);
+      console.log('Indexes created');
+    } catch (e) {
+      console.log('Indexes may already exist:', e.message);
+    }
+
+    console.log('Database initialized successfully');
+    return db;
+  } catch (err) {
+    console.error('Database initialization error:', err);
+    throw err;
+  }
+}
+
+// Save database to file
+function saveDb() {
+  const data = db.export();
+  const buffer = Buffer.from(data);
+  writeFileSync(DB_PATH, buffer);
+}
+
+// Generate unique ID
+const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
+
+// API Routes
+
+// Get all students
+app.get('/api/students', (req, res) => {
+  try {
+    const stmt = db.prepare('SELECT * FROM students ORDER BY createdAt DESC');
+    const rows = [];
+    while (stmt.step()) {
+      rows.push(stmt.getAsObject());
+    }
+    stmt.free();
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get single student by ID
+app.get('/api/students/:id', (req, res) => {
+  try {
+    const stmt = db.prepare('SELECT * FROM students WHERE _id = ?');
+    stmt.bind([req.params.id]);
+    if (stmt.step()) {
+      const row = stmt.getAsObject();
+      stmt.free();
+      res.json(row);
+    } else {
+      stmt.free();
+      res.status(404).json({ error: 'Student not found' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Create or update student (upsert)
+app.post('/api/students', (req, res) => {
+  const data = req.body;
+  const id = data._id || generateId();
+  const now = new Date().toISOString();
+
+  try {
+    // Check if student exists by name + birth
+    const checkStmt = db.prepare(`
+      SELECT _id FROM students
+      WHERE NAMA_LENGKAP = ? AND (TEMPAT_LAHIR || TANGGAL_LAHIR) = ?
+    `);
+    checkStmt.bind([data.NAMA_LENGKAP, data.TEMPAT_LAHIR + data.TANGGAL_LAHIR]);
+    const existing = checkStmt.step() ? checkStmt.getAsObject() : null;
+    checkStmt.free();
+
+    if (existing && (!data._id || existing._id !== data._id)) {
+      // Update existing
+      db.run(`
+        UPDATE students SET
+          NAMA_PANGGILAN=?, JENIS_KELAMIN=?, TEMPAT_LAHIR=?, TANGGAL_LAHIR=?,
+          AGAMA=?, KEWARGANEGARAAN=?, ANAK_KE=?, SAUDARA_KANDUNG=?, SAUDARA_TIRI=?,
+          SAUDARA_ANGKAT=?, BAHASA_SEHARI=?, ALAMAT=?, NOMOR_TELEPON=?, TINGGAL_DENGAN=?,
+          JARAK_KE_SEKOLAH=?, ALAT_TRANSPORTASI=?, BERAT_BADAN=?, TINGGI_BADAN=?,
+          GOLONGAN_DARAH=?, PENYAKIT=?, ASAL_SD=?, NOMOR_STTB_SD=?, TANGGAL_STTB_SD=?,
+          LAMA_SD=?, ASAL_SMP=?, NOMOR_STTB_SMP=?, TANGGAL_STTB_SMP=?, LAMA_SMP=?,
+          NAMA_AYAH=?, TTL_AYAH=?, ALAMAT_AYAH=?, TELEPON_AYAH=?, PEKERJAAN_AYAH=?,
+          PENGHASILAN_AYAH=?, PENDIDIKAN_AYAH=?, KEWARGANEGARAAN_AYAH=?, NAMA_IBU=?,
+          TTL_IBU=?, ALAMAT_IBU=?, TELEPON_IBU=?, PEKERJAAN_IBU=?, PENGHASILAN_IBU=?,
+          PENDIDIKAN_IBU=?, KEWARGANEGARAAN_IBU=?, NAMA_WALI=?, ALAMAT_WALI=?,
+          TELEPON_WALI=?, JURUSAN=?, KEGEMARAN_OLAHRAGA=?, KEGEMARAN_KEMASYARAKATAN=?,
+          KEGEMARAN_HASTA_KARYA=?, updatedAt=?
+        WHERE _id = ?
+      `, [
+        data.NAMA_PANGGILAN, data.JENIS_KELAMIN, data.TEMPAT_LAHIR, data.TANGGAL_LAHIR,
+        data.AGAMA, data.KEWARGANEGARAAN, data.ANAK_KE, data.SAUDARA_KANDUNG,
+        data.SAUDARA_TIRI, data.SAUDARA_ANGKAT, data.BAHASA_SEHARI, data.ALAMAT,
+        data.NOMOR_TELEPON, data.TINGGAL_DENGAN, data.JARAK_KE_SEKOLAH, data.ALAT_TRANSPORTASI,
+        data.BERAT_BADAN, data.TINGGI_BADAN, data.GOLONGAN_DARAH, data.PENYAKIT,
+        data.ASAL_SD, data.NOMOR_STTB_SD, data.TANGGAL_STTB_SD, data.LAMA_SD,
+        data.ASAL_SMP, data.NOMOR_STTB_SMP, data.TANGGAL_STTB_SMP, data.LAMA_SMP,
+        data.NAMA_AYAH, data.TTL_AYAH, data.ALAMAT_AYAH, data.TELEPON_AYAH,
+        data.PEKERJAAN_AYAH, data.PENGHASILAN_AYAH, data.PENDIDIKAN_AYAH,
+        data.KEWARGANEGARAAN_AYAH, data.NAMA_IBU, data.TTL_IBU, data.ALAMAT_IBU,
+        data.TELEPON_IBU, data.PEKERJAAN_IBU, data.PENGHASILAN_IBU, data.PENDIDIKAN_IBU,
+        data.KEWARGANEGARAAN_IBU, data.NAMA_WALI, data.ALAMAT_WALI, data.TELEPON_WALI,
+        data.JURUSAN, data.KEGEMARAN_OLAHRAGA, data.KEGEMARAN_KEMASYARAKATAN,
+        data.KEGEMARAN_HASTA_KARYA, now, existing._id
+      ]);
+      saveDb();
+      res.json({ _id: existing._id, message: 'Student updated' });
+    } else if (data._id && existing && existing._id === data._id) {
+      // Update same student
+      db.run(`
+        UPDATE students SET
+          NAMA_PANGGILAN=?, JENIS_KELAMIN=?, TEMPAT_LAHIR=?, TANGGAL_LAHIR=?,
+          AGAMA=?, KEWARGANEGARAAN=?, ANAK_KE=?, SAUDARA_KANDUNG=?, SAUDARA_TIRI=?,
+          SAUDARA_ANGKAT=?, BAHASA_SEHARI=?, ALAMAT=?, NOMOR_TELEPON=?, TINGGAL_DENGAN=?,
+          JARAK_KE_SEKOLAH=?, ALAT_TRANSPORTASI=?, BERAT_BADAN=?, TINGGI_BADAN=?,
+          GOLONGAN_DARAH=?, PENYAKIT=?, ASAL_SD=?, NOMOR_STTB_SD=?, TANGGAL_STTB_SD=?,
+          LAMA_SD=?, ASAL_SMP=?, NOMOR_STTB_SMP=?, TANGGAL_STTB_SMP=?, LAMA_SMP=?,
+          NAMA_AYAH=?, TTL_AYAH=?, ALAMAT_AYAH=?, TELEPON_AYAH=?, PEKERJAAN_AYAH=?,
+          PENGHASILAN_AYAH=?, PENDIDIKAN_AYAH=?, KEWARGANEGARAAN_AYAH=?, NAMA_IBU=?,
+          TTL_IBU=?, ALAMAT_IBU=?, TELEPON_IBU=?, PEKERJAAN_IBU=?, PENGHASILAN_IBU=?,
+          PENDIDIKAN_IBU=?, KEWARGANEGARAAN_IBU=?, NAMA_WALI=?, ALAMAT_WALI=?,
+          TELEPON_WALI=?, JURUSAN=?, KEGEMARAN_OLAHRAGA=?, KEGEMARAN_KEMASYARAKATAN=?,
+          KEGEMARAN_HASTA_KARYA=?, updatedAt=?
+        WHERE _id = ?
+      `, [
+        data.NAMA_PANGGILAN, data.JENIS_KELAMIN, data.TEMPAT_LAHIR, data.TANGGAL_LAHIR,
+        data.AGAMA, data.KEWARGANEGARAAN, data.ANAK_KE, data.SAUDARA_KANDUNG,
+        data.SAUDARA_TIRI, data.SAUDARA_ANGKAT, data.BAHASA_SEHARI, data.ALAMAT,
+        data.NOMOR_TELEPON, data.TINGGAL_DENGAN, data.JARAK_KE_SEKOLAH, data.ALAT_TRANSPORTASI,
+        data.BERAT_BADAN, data.TINGGI_BADAN, data.GOLONGAN_DARAH, data.PENYAKIT,
+        data.ASAL_SD, data.NOMOR_STTB_SD, data.TANGGAL_STTB_SD, data.LAMA_SD,
+        data.ASAL_SMP, data.NOMOR_STTB_SMP, data.TANGGAL_STTB_SMP, data.LAMA_SMP,
+        data.NAMA_AYAH, data.TTL_AYAH, data.ALAMAT_AYAH, data.TELEPON_AYAH,
+        data.PEKERJAAN_AYAH, data.PENGHASILAN_AYAH, data.PENDIDIKAN_AYAH,
+        data.KEWARGANEGARAAN_AYAH, data.NAMA_IBU, data.TTL_IBU, data.ALAMAT_IBU,
+        data.TELEPON_IBU, data.PEKERJAAN_IBU, data.PENGHASILAN_IBU, data.PENDIDIKAN_IBU,
+        data.KEWARGANEGARAAN_IBU, data.NAMA_WALI, data.ALAMAT_WALI, data.TELEPON_WALI,
+        data.JURUSAN, data.KEGEMARAN_OLAHRAGA, data.KEGEMARAN_KEMASYARAKATAN,
+        data.KEGEMARAN_HASTA_KARYA, now, data._id
+      ]);
+      saveDb();
+      res.json({ _id: data._id, message: 'Student updated' });
+    } else {
+      // Insert new student
+      db.run(`
+        INSERT INTO students (
+          _id, NAMA_LENGKAP, NAMA_PANGGILAN, JENIS_KELAMIN, TEMPAT_LAHIR, TANGGAL_LAHIR,
+          AGAMA, KEWARGANEGARAAN, ANAK_KE, SAUDARA_KANDUNG, SAUDARA_TIRI, SAUDARA_ANGKAT,
+          BAHASA_SEHARI, ALAMAT, NOMOR_TELEPON, TINGGAL_DENGAN, JARAK_KE_SEKOLAH,
+          ALAT_TRANSPORTASI, BERAT_BADAN, TINGGI_BADAN, GOLONGAN_DARAH, PENYAKIT,
+          ASAL_SD, NOMOR_STTB_SD, TANGGAL_STTB_SD, LAMA_SD, ASAL_SMP, NOMOR_STTB_SMP,
+          TANGGAL_STTB_SMP, LAMA_SMP, NAMA_AYAH, TTL_AYAH, ALAMAT_AYAH, TELEPON_AYAH,
+          PEKERJAAN_AYAH, PENGHASILAN_AYAH, PENDIDIKAN_AYAH, KEWARGANEGARAAN_AYAH,
+          NAMA_IBU, TTL_IBU, ALAMAT_IBU, TELEPON_IBU, PEKERJAAN_IBU, PENGHASILAN_IBU,
+          PENDIDIKAN_IBU, KEWARGANEGARAAN_IBU, NAMA_WALI, ALAMAT_WALI, TELEPON_WALI,
+          JURUSAN, KEGEMARAN_OLAHRAGA, KEGEMARAN_KEMASYARAKATAN, KEGEMARAN_HASTA_KARYA,
+          createdAt
+        ) VALUES (
+          ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
+          ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
+        )
+      `, [
+        id, data.NAMA_LENGKAP, data.NAMA_PANGGILAN, data.JENIS_KELAMIN, data.TEMPAT_LAHIR,
+        data.TANGGAL_LAHIR, data.AGAMA, data.KEWARGANEGARAAN, data.ANAK_KE,
+        data.SAUDARA_KANDUNG || '0', data.SAUDARA_TIRI || '0', data.SAUDARA_ANGKAT || '0',
+        data.BAHASA_SEHARI, data.ALAMAT, data.NOMOR_TELEPON, data.TINGGAL_DENGAN,
+        data.JARAK_KE_SEKOLAH, data.ALAT_TRANSPORTASI, data.BERAT_BADAN, data.TINGGI_BADAN,
+        data.GOLONGAN_DARAH, data.PENYAKIT, data.ASAL_SD, data.NOMOR_STTB_SD,
+        data.TANGGAL_STTB_SD, data.LAMA_SD, data.ASAL_SMP, data.NOMOR_STTB_SMP,
+        data.TANGGAL_STTB_SMP, data.LAMA_SMP, data.NAMA_AYAH, data.TTL_AYAH,
+        data.ALAMAT_AYAH, data.TELEPON_AYAH, data.PEKERJAAN_AYAH, data.PENGHASILAN_AYAH,
+        data.PENDIDIKAN_AYAH, data.KEWARGANEGARAAN_AYAH, data.NAMA_IBU, data.TTL_IBU,
+        data.ALAMAT_IBU, data.TELEPON_IBU, data.PEKERJAAN_IBU, data.PENGHASILAN_IBU,
+        data.PENDIDIKAN_IBU, data.KEWARGANEGARAAN_IBU, data.NAMA_WALI || '',
+        data.ALAMAT_WALI || '', data.TELEPON_WALI || '', data.JURUSAN,
+        data.KEGEMARAN_OLAHRAGA, data.KEGEMARAN_KEMASYARAKATAN, data.KEGEMARAN_HASTA_KARYA,
+        now
+      ]);
+      saveDb();
+      res.json({ _id: id, message: 'Student created' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete student
+app.delete('/api/students/:id', (req, res) => {
+  try {
+    db.run('DELETE FROM students WHERE _id = ?', [req.params.id]);
+    const changes = db.getRowsModified();
+    if (changes === 0) {
+      res.status(404).json({ error: 'Student not found' });
+      return;
+    }
+    saveDb();
+    res.json({ message: 'Student deleted' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get statistics
+app.get('/api/stats', (req, res) => {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    const stmt = db.prepare(`
+      SELECT
+        COUNT(*) as total,
+        COUNT(CASE WHEN DATE(createdAt) = ? THEN 1 END) as today,
+        COUNT(CASE WHEN DATE(createdAt) >= ? THEN 1 END) as recent
+      FROM students
+    `);
+    stmt.bind([today, weekAgo]);
+    if (stmt.step()) {
+      const stats = stmt.getAsObject();
+      stmt.free();
+      res.json(stats);
+    } else {
+      stmt.free();
+      res.json({ total: 0, today: 0, recent: 0 });
+    }
+  } catch (err) {
+    console.error('Stats error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get counts grouped by jurusan
+app.get('/api/stats/jurusan', (req, res) => {
+  try {
+    const stmt = db.prepare(`
+      SELECT JURUSAN, COUNT(*) as count
+      FROM students
+      GROUP BY JURUSAN
+      ORDER BY count DESC, JURUSAN ASC
+    `);
+    const rows = [];
+    while (stmt.step()) {
+      rows.push(stmt.getAsObject());
+    }
+    stmt.free();
+    res.json(rows);
+  } catch (err) {
+    console.error('Jurusan stats error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Start server after DB init
+initDb().then(() => {
+  console.log('initDb completed, starting server...');
+  app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+  });
+}).catch(err => {
+  console.error('Failed to initialize database:', err);
+  process.exit(1);
+});
+
+// Graceful shutdown
+process.on("SIGTERM", () => {
+  if (db) db.close();
+  console.log("Database connection closed (SIGTERM)");
+  process.exit(0);
+});
+ 
+ / /   K e e p   p r o c e s s   a l i v e  
+ s e t I n t e r v a l ( ( )   = >   { } ,   1 0 0 0 ) ;  
+ 
