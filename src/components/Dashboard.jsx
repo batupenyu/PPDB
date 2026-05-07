@@ -1,8 +1,9 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const Dashboard = ({ stats, jurusanStats = [] }) => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const navItems = [
     {
@@ -41,6 +42,20 @@ const Dashboard = ({ stats, jurusanStats = [] }) => {
 
   return (
     <div className="dashboard">
+      {/* Navigation */}
+      <nav className="top-nav">
+        <div className="nav-brand" onClick={() => navigate('/')} style={{cursor: 'pointer'}}>
+          🏫 PPDB Online
+        </div>
+        <div className="nav-links">
+          <button onClick={() => navigate('/')} className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>Formulir</button>
+          <button onClick={() => navigate('/dashboard')} className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}>Dashboard</button>
+          <button onClick={() => navigate('/data')} className={`nav-link ${location.pathname === '/data' ? 'active' : ''}`}>Data Siswa</button>
+          <button onClick={() => navigate('/export-import')} className={`nav-link ${location.pathname === '/export-import' ? 'active' : ''}`}>Excel</button>
+          <button onClick={() => navigate('/print')} className={`nav-link ${location.pathname === '/print' ? 'active' : ''}`}>Cetak</button>
+        </div>
+      </nav>
+      
       <div className="dashboard-header">
         <h1>PPDB - Dashboard</h1>
         <p className="subtitle">Sistem Penerimaan Siswa Baru</p>

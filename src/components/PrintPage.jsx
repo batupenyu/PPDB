@@ -1,9 +1,10 @@
 import React, { useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { jsPDF } from 'jspdf';
 
 const PrintPage = ({ data, onBack }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [selectedName, setSelectedName] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const printRef = useRef(null);
@@ -190,9 +191,23 @@ const PrintPage = ({ data, onBack }) => {
     };
   };
 
-  return (
-    <div className="print-page">
-      <div className="print-controls">
+    return (
+      <div className="print-page">
+        {/* Navigation */}
+        <nav className="top-nav">
+          <div className="nav-brand" onClick={() => navigate('/')} style={{cursor: 'pointer'}}>
+            🏫 PPDB Online
+          </div>
+        <div className="nav-links">
+          <button onClick={() => navigate('/')} className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>Formulir</button>
+          <button onClick={() => navigate('/dashboard')} className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}>Dashboard</button>
+          <button onClick={() => navigate('/data')} className={`nav-link ${location.pathname === '/data' ? 'active' : ''}`}>Data Siswa</button>
+          <button onClick={() => navigate('/export-import')} className={`nav-link ${location.pathname === '/export-import' ? 'active' : ''}`}>Excel</button>
+          <button onClick={() => navigate('/print')} className={`nav-link ${location.pathname === '/print' ? 'active' : ''}`}>Cetak</button>
+        </div>
+        </nav>
+        
+        <div className="print-controls">
         <button className="btn btn-secondary" onClick={() => navigate('/data')}>
           ← Kembali ke Data
         </button>

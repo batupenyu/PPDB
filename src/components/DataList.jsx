@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { DATA_KEYS, FORM_FIELDS } from '../utils/excel';
 
 const DataList = ({ data, onDelete, onEdit, onPrint }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredData = data.filter(item =>
@@ -17,10 +18,24 @@ const DataList = ({ data, onDelete, onEdit, onPrint }) => {
 
   const getNama = (item) => item.NAMA_LENGKAP || 'Tanpa Nama';
 
-  return (
-    <div className="data-list-page">
-      <div className="page-header">
-        <h2>📊 Data Siswa Terdaftar</h2>
+return (
+  <div className="data-list-page">
+    {/* Navigation */}
+    <nav className="top-nav">
+      <div className="nav-brand" onClick={() => navigate('/')} style={{cursor: 'pointer'}}>
+        🏫 PPDB Online
+      </div>
+        <div className="nav-links">
+          <button onClick={() => navigate('/')} className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>Formulir</button>
+          <button onClick={() => navigate('/dashboard')} className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}>Dashboard</button>
+          <button onClick={() => navigate('/data')} className={`nav-link ${location.pathname === '/data' ? 'active' : ''}`}>Data Siswa</button>
+          <button onClick={() => navigate('/export-import')} className={`nav-link ${location.pathname === '/export-import' ? 'active' : ''}`}>Excel</button>
+          <button onClick={() => navigate('/print')} className={`nav-link ${location.pathname === '/print' ? 'active' : ''}`}>Cetak</button>
+        </div>
+    </nav>
+    
+    <div className="page-header">
+      <h2>📊 Data Siswa Terdaftar</h2>
         <div className="search-box">
           <input
             type="text"

@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { exportToExcel, importFromExcel } from '../utils/excel';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const ExportImport = ({ data, onImport, onExportAll }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isDragging, setIsDragging] = useState(false);
   const [importStatus, setImportStatus] = useState(null);
   const [error, setError] = useState(null);
@@ -51,6 +54,20 @@ const ExportImport = ({ data, onImport, onExportAll }) => {
 
   return (
     <div className="export-import-page">
+      {/* Navigation */}
+      <nav className="top-nav">
+        <div className="nav-brand" onClick={() => navigate('/')} style={{cursor: 'pointer'}}>
+          🏫 PPDB Online
+        </div>
+        <div className="nav-links">
+          <button onClick={() => navigate('/')} className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>Formulir</button>
+          <button onClick={() => navigate('/dashboard')} className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}>Dashboard</button>
+          <button onClick={() => navigate('/data')} className={`nav-link ${location.pathname === '/data' ? 'active' : ''}`}>Data Siswa</button>
+          <button onClick={() => navigate('/export-import')} className={`nav-link ${location.pathname === '/export-import' ? 'active' : ''}`}>Excel</button>
+          <button onClick={() => navigate('/print')} className={`nav-link ${location.pathname === '/print' ? 'active' : ''}`}>Cetak</button>
+        </div>
+      </nav>
+      
       <h2>📤 Excel Import / Export</h2>
 
       <div className="card-grid">

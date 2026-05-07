@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 
 const FormPage = ({ students, onSubmit, getStudent }) => {
   const navigate = useNavigate();
@@ -198,19 +198,19 @@ const FormPage = ({ students, onSubmit, getStudent }) => {
 
   return (
     <div className="container">
-      {/* Navigation */}
-      <nav className="top-nav">
-        <div className="nav-brand" onClick={() => navigate('/')} style={{cursor: 'pointer'}}>
-          🏫 PPDB Online
-        </div>
-        <div className="nav-links">
-          <button onClick={() => navigate('/')} className="nav-link active">Formulir</button>
-          <button onClick={() => navigate('/dashboard')} className="nav-link">Dashboard</button>
-          <button onClick={() => navigate('/data')} className="nav-link">Data Siswa</button>
-          <button onClick={() => navigate('/export-import')} className="nav-link">Excel</button>
-          <button onClick={() => navigate('/print')} className="nav-link">Cetak</button>
-        </div>
-      </nav>
+       {/* Navigation */}
+       <nav className="top-nav">
+         <div className="nav-brand" onClick={() => navigate('/')} style={{cursor: 'pointer'}}>
+           🏫 PPDB Online
+         </div>
+         <div className="nav-links">
+           <button onClick={() => navigate('/')} className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>Formulir</button>
+           <button onClick={() => navigate('/dashboard')} className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}>Dashboard</button>
+           <button onClick={() => navigate('/data')} className={`nav-link ${location.pathname === '/data' ? 'active' : ''}`}>Data Siswa</button>
+           <button onClick={() => navigate('/export-import')} className={`nav-link ${location.pathname === '/export-import' ? 'active' : ''}`}>Excel</button>
+           <button onClick={() => navigate('/print')} className={`nav-link ${location.pathname === '/print' ? 'active' : ''}`}>Cetak</button>
+         </div>
+       </nav>
 
       <h1 style={{marginTop: '20px'}}>
         {isEdit ? '✏️ Edit Data Siswa' : '📝 Formulir Penerimaan Siswa Baru'}
