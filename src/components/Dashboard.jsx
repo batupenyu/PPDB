@@ -76,35 +76,44 @@ const Dashboard = ({ stats, jurusanStats = [] }) => {
         </div>
       </div>
 
-      {/* Jurusan Breakdown */}
-      {jurusanStats.length > 0 && (
-        <div className="jurusan-breakdown">
-          <h2>📈 Distribusi Jurusan</h2>
-          <div className="jurusan-cards">
-            {jurusanStats.map((item, index) => (
-              <div
-                key={index}
-                className="jurusan-card"
-                style={{
-                  '--card-color': [
-                    '#667eea', '#2ecc71', '#f39c12', '#e74c3c',
-                    '#9b59b6', '#3498db', '#1abc9c', '#e67e22'
-                  ][index % 8]
-                }}
-              >
-                <div className="jurusan-name">{item.JURUSAN}</div>
-                <div className="jurusan-count">{item.count} siswa</div>
-                <div className="jurusan-bar">
-                  <div
-                    className="jurusan-bar-fill"
-                    style={{ width: `${(item.count / displayTotal) * 100}%` }}
-                  ></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+       {/* Jurusan Breakdown */}
+       {jurusanStats.length > 0 && (
+         <div className="jurusan-breakdown">
+           <h2>📈 Distribusi Jurusan</h2>
+           <div className="jurusan-cards">
+             {jurusanStats
+               .slice()
+               .sort((a, b) => a.JURUSAN.localeCompare(b.JURUSAN))
+               .map((item, index) => (
+                 <Link
+                   key={item.JURUSAN}
+                   to={`/data?jurusan=${encodeURIComponent(item.JURUSAN)}`}
+                   className="jurusan-card-link"
+                   style={{ textDecoration: 'none', color: 'inherit' }}
+                 >
+                   <div
+                     className="jurusan-card"
+                     style={{
+                       '--card-color': [
+                         '#667eea', '#2ecc71', '#f39c12', '#e74c3c',
+                         '#9b59b6', '#3498db', '#1abc9c', '#e67e22'
+                       ][index % 8]
+                     }}
+                   >
+                     <div className="jurusan-name">{item.JURUSAN}</div>
+                     <div className="jurusan-count">{item.count} siswa</div>
+                     <div className="jurusan-bar">
+                       <div
+                         className="jurusan-bar-fill"
+                         style={{ width: `${(item.count / displayTotal) * 100}%` }}
+                       ></div>
+                     </div>
+                   </div>
+                 </Link>
+               ))}
+           </div>
+         </div>
+       )}
 
       <div className="nav-grid">
         {navItems.map(item => (

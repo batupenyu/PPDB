@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { DATA_KEYS, FORM_FIELDS } from '../utils/excel';
 
-const DataList = ({ data, onDelete, onEdit, onPrint }) => {
+const DataList = ({ data, onDelete, onEdit, onPrint, filterJurusan = null }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState('');
