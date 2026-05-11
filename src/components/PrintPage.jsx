@@ -235,7 +235,7 @@ const PrintPage = ({ data, onBack }) => {
         <button className="btn btn-secondary" onClick={() => navigate('/data')}>
           ← Kembali ke Data
         </button>
-        <h2 style={{margin: '0 20px', flex: 1}}>🖨️ Cetak / Print Data</h2>
+        <h2 style={{margin: '0 20px', flex: 1, borderBottom: 'none', paddingBottom: 0}}>🖨️</h2>
 
         <div className="select-wrapper">
           <select
