@@ -187,103 +187,86 @@ app.post('/api/students', (req, res) => {
   const now = new Date().toISOString();
 
   try {
-    // Check if student exists by name + birth
-    const checkStmt = db.prepare(`
-      SELECT _id FROM students
-      WHERE NAMA_LENGKAP = ? AND (TEMPAT_LAHIR || TANGGAL_LAHIR) = ?
-    `);
-    checkStmt.bind([data.NAMA_LENGKAP, data.TEMPAT_LAHIR + data.TANGGAL_LAHIR]);
-    const existing = checkStmt.step() ? checkStmt.getAsObject() : null;
-    checkStmt.free();
+    // If _id provided, check by _id first (allows editing tanggal_lahir/tempat_lahir)
+    let existing = null;
+    if (data._id) {
+      const byId = db.prepare('SELECT _id FROM students WHERE _id = ?');
+      byId.bind([data._id]);
+      existing = byId.step() ? byId.getAsObject() : null;
+      byId.free();
+    }
+    // If no _id or not found by _id, check duplicate by name + birth
+    if (!existing) {
+      const checkStmt = db.prepare(`
+        SELECT _id FROM students
+        WHERE NAMA_LENGKAP = ? AND (TEMPAT_LAHIR || TANGGAL_LAHIR) = ?
+      `);
+      checkStmt.bind([data.NAMA_LENGKAP, data.TEMPAT_LAHIR + data.TANGGAL_LAHIR]);
+      existing = checkStmt.step() ? checkStmt.getAsObject() : null;
+      checkStmt.free();
+    }
+
+    const updateParams = [
+      data.NAMA_PANGGILAN, data.JENIS_KELAMIN, data.TEMPAT_LAHIR, data.TANGGAL_LAHIR,
+      data.AGAMA, data.KEWARGANEGARAAN, data.ANAK_KE, data.SAUDARA_KANDUNG,
+      data.SAUDARA_TIRI, data.SAUDARA_ANGKAT, data.BAHASA_SEHARI, data.ALAMAT,
+      data.NOMOR_TELEPON, data.TINGGAL_DENGAN, data.JARAK_KE_SEKOLAH, data.ALAT_TRANSPORTASI,
+      data.BERAT_BADAN, data.TINGGI_BADAN, data.GOLONGAN_DARAH, data.PENYAKIT,
+      data.ASAL_SD, data.NOMOR_STTB_SD, data.TANGGAL_STTB_SD, data.LAMA_SD,
+      data.ASAL_SMP, data.NOMOR_STTB_SMP, data.TANGGAL_STTB_SMP, data.LAMA_SMP,
+      data.NAMA_AYAH, data.TTL_AYAH, data.ALAMAT_AYAH, data.TELEPON_AYAH,
+      data.PEKERJAAN_AYAH, data.PENGHASILAN_AYAH, data.PENDIDIKAN_AYAH,
+      data.KEWARGANEGARAAN_AYAH, data.NAMA_IBU, data.TTL_IBU, data.ALAMAT_IBU,
+      data.TELEPON_IBU, data.PEKERJAAN_IBU, data.PENGHASILAN_IBU, data.PENDIDIKAN_IBU,
+      data.KEWARGANEGARAAN_IBU, data.NAMA_WALI || '', data.ALAMAT_WALI || '', data.TELEPON_WALI || '',
+      data.JURUSAN, data.KEGEMARAN_OLAHRAGA, data.KEGEMARAN_KEMASYARAKATAN,
+      data.KEGEMARAN_HASTA_KARYA, now
+    ];
+    const updateSql = `UPDATE students SET
+      NAMA_PANGGILAN=?, JENIS_KELAMIN=?, TEMPAT_LAHIR=?, TANGGAL_LAHIR=?,
+      AGAMA=?, KEWARGANEGARAAN=?, ANAK_KE=?, SAUDARA_KANDUNG=?, SAUDARA_TIRI=?,
+      SAUDARA_ANGKAT=?, BAHASA_SEHARI=?, ALAMAT=?, NOMOR_TELEPON=?, TINGGAL_DENGAN=?,
+      JARAK_KE_SEKOLAH=?, ALAT_TRANSPORTASI=?, BERAT_BADAN=?, TINGGI_BADAN=?,
+      GOLONGAN_DARAH=?, PENYAKIT=?, ASAL_SD=?, NOMOR_STTB_SD=?, TANGGAL_STTB_SD=?,
+      LAMA_SD=?, ASAL_SMP=?, NOMOR_STTB_SMP=?, TANGGAL_STTB_SMP=?, LAMA_SMP=?,
+      NAMA_AYAH=?, TTL_AYAH=?, ALAMAT_AYAH=?, TELEPON_AYAH=?, PEKERJAAN_AYAH=?,
+      PENGHASILAN_AYAH=?, PENDIDIKAN_AYAH=?, KEWARGANEGARAAN_AYAH=?, NAMA_IBU=?,
+      TTL_IBU=?, ALAMAT_IBU=?, TELEPON_IBU=?, PEKERJAAN_IBU=?, PENGHASILAN_IBU=?,
+      PENDIDIKAN_IBU=?, KEWARGANEGARAAN_IBU=?, NAMA_WALI=?, ALAMAT_WALI=?,
+      TELEPON_WALI=?, JURUSAN=?, KEGEMARAN_OLAHRAGA=?, KEGEMARAN_KEMASYARAKATAN=?,
+      KEGEMARAN_HASTA_KARYA=?, updatedAt=?
+      WHERE _id = ?`;
 
     if (existing && (!data._id || existing._id !== data._id)) {
-      // Update existing
-      db.run(`
-        UPDATE students SET
-          NAMA_PANGGILAN=?, JENIS_KELAMIN=?, TEMPAT_LAHIR=?, TANGGAL_LAHIR=?,
-          AGAMA=?, KEWARGANEGARAAN=?, ANAK_KE=?, SAUDARA_KANDUNG=?, SAUDARA_TIRI=?,
-          SAUDARA_ANGKAT=?, BAHASA_SEHARI=?, ALAMAT=?, NOMOR_TELEPON=?, TINGGAL_DENGAN=?,
-          JARAK_KE_SEKOLAH=?, ALAT_TRANSPORTASI=?, BERAT_BADAN=?, TINGGI_BADAN=?,
-          GOLONGAN_DARAH=?, PENYAKIT=?, ASAL_SD=?, NOMOR_STTB_SD=?, TANGGAL_STTB_SD=?,
-          LAMA_SD=?, ASAL_SMP=?, NOMOR_STTB_SMP=?, TANGGAL_STTB_SMP=?, LAMA_SMP=?,
-          NAMA_AYAH=?, TTL_AYAH=?, ALAMAT_AYAH=?, TELEPON_AYAH=?, PEKERJAAN_AYAH=?,
-          PENGHASILAN_AYAH=?, PENDIDIKAN_AYAH=?, KEWARGANEGARAAN_AYAH=?, NAMA_IBU=?,
-          TTL_IBU=?, ALAMAT_IBU=?, TELEPON_IBU=?, PEKERJAAN_IBU=?, PENGHASILAN_IBU=?,
-          PENDIDIKAN_IBU=?, KEWARGANEGARAAN_IBU=?, NAMA_WALI=?, ALAMAT_WALI=?,
-          TELEPON_WALI=?, JURUSAN=?, KEGEMARAN_OLAHRAGA=?, KEGEMARAN_KEMASYARAKATAN=?,
-          KEGEMARAN_HASTA_KARYA=?, updatedAt=?
-        WHERE _id = ?
-      `, [
-        data.NAMA_PANGGILAN, data.JENIS_KELAMIN, data.TEMPAT_LAHIR, data.TANGGAL_LAHIR,
-        data.AGAMA, data.KEWARGANEGARAAN, data.ANAK_KE, data.SAUDARA_KANDUNG,
-        data.SAUDARA_TIRI, data.SAUDARA_ANGKAT, data.BAHASA_SEHARI, data.ALAMAT,
-        data.NOMOR_TELEPON, data.TINGGAL_DENGAN, data.JARAK_KE_SEKOLAH, data.ALAT_TRANSPORTASI,
-        data.BERAT_BADAN, data.TINGGI_BADAN, data.GOLONGAN_DARAH, data.PENYAKIT,
-        data.ASAL_SD, data.NOMOR_STTB_SD, data.TANGGAL_STTB_SD, data.LAMA_SD,
-        data.ASAL_SMP, data.NOMOR_STTB_SMP, data.TANGGAL_STTB_SMP, data.LAMA_SMP,
-        data.NAMA_AYAH, data.TTL_AYAH, data.ALAMAT_AYAH, data.TELEPON_AYAH,
-        data.PEKERJAAN_AYAH, data.PENGHASILAN_AYAH, data.PENDIDIKAN_AYAH,
-        data.KEWARGANEGARAAN_AYAH, data.NAMA_IBU, data.TTL_IBU, data.ALAMAT_IBU,
-        data.TELEPON_IBU, data.PEKERJAAN_IBU, data.PENGHASILAN_IBU, data.PENDIDIKAN_IBU,
-        data.KEWARGANEGARAAN_IBU, data.NAMA_WALI, data.ALAMAT_WALI, data.TELEPON_WALI,
-        data.JURUSAN, data.KEGEMARAN_OLAHRAGA, data.KEGEMARAN_KEMASYARAKATAN,
-        data.KEGEMARAN_HASTA_KARYA, now, existing._id
-      ]);
+      const stmt = db.prepare(updateSql);
+      stmt.run([...updateParams, existing._id]);
+      stmt.free();
       saveDb();
       res.json({ _id: existing._id, message: 'Student updated' });
     } else if (data._id && existing && existing._id === data._id) {
-      // Update same student
-      db.run(`
-        UPDATE students SET
-          NAMA_PANGGILAN=?, JENIS_KELAMIN=?, TEMPAT_LAHIR=?, TANGGAL_LAHIR=?,
-          AGAMA=?, KEWARGANEGARAAN=?, ANAK_KE=?, SAUDARA_KANDUNG=?, SAUDARA_TIRI=?,
-          SAUDARA_ANGKAT=?, BAHASA_SEHARI=?, ALAMAT=?, NOMOR_TELEPON=?, TINGGAL_DENGAN=?,
-          JARAK_KE_SEKOLAH=?, ALAT_TRANSPORTASI=?, BERAT_BADAN=?, TINGGI_BADAN=?,
-          GOLONGAN_DARAH=?, PENYAKIT=?, ASAL_SD=?, NOMOR_STTB_SD=?, TANGGAL_STTB_SD=?,
-          LAMA_SD=?, ASAL_SMP=?, NOMOR_STTB_SMP=?, TANGGAL_STTB_SMP=?, LAMA_SMP=?,
-          NAMA_AYAH=?, TTL_AYAH=?, ALAMAT_AYAH=?, TELEPON_AYAH=?, PEKERJAAN_AYAH=?,
-          PENGHASILAN_AYAH=?, PENDIDIKAN_AYAH=?, KEWARGANEGARAAN_AYAH=?, NAMA_IBU=?,
-          TTL_IBU=?, ALAMAT_IBU=?, TELEPON_IBU=?, PEKERJAAN_IBU=?, PENGHASILAN_IBU=?,
-          PENDIDIKAN_IBU=?, KEWARGANEGARAAN_IBU=?, NAMA_WALI=?, ALAMAT_WALI=?,
-          TELEPON_WALI=?, JURUSAN=?, KEGEMARAN_OLAHRAGA=?, KEGEMARAN_KEMASYARAKATAN=?,
-          KEGEMARAN_HASTA_KARYA=?, updatedAt=?
-        WHERE _id = ?
-      `, [
-        data.NAMA_PANGGILAN, data.JENIS_KELAMIN, data.TEMPAT_LAHIR, data.TANGGAL_LAHIR,
-        data.AGAMA, data.KEWARGANEGARAAN, data.ANAK_KE, data.SAUDARA_KANDUNG,
-        data.SAUDARA_TIRI, data.SAUDARA_ANGKAT, data.BAHASA_SEHARI, data.ALAMAT,
-        data.NOMOR_TELEPON, data.TINGGAL_DENGAN, data.JARAK_KE_SEKOLAH, data.ALAT_TRANSPORTASI,
-        data.BERAT_BADAN, data.TINGGI_BADAN, data.GOLONGAN_DARAH, data.PENYAKIT,
-        data.ASAL_SD, data.NOMOR_STTB_SD, data.TANGGAL_STTB_SD, data.LAMA_SD,
-        data.ASAL_SMP, data.NOMOR_STTB_SMP, data.TANGGAL_STTB_SMP, data.LAMA_SMP,
-        data.NAMA_AYAH, data.TTL_AYAH, data.ALAMAT_AYAH, data.TELEPON_AYAH,
-        data.PEKERJAAN_AYAH, data.PENGHASILAN_AYAH, data.PENDIDIKAN_AYAH,
-        data.KEWARGANEGARAAN_AYAH, data.NAMA_IBU, data.TTL_IBU, data.ALAMAT_IBU,
-        data.TELEPON_IBU, data.PEKERJAAN_IBU, data.PENGHASILAN_IBU, data.PENDIDIKAN_IBU,
-        data.KEWARGANEGARAAN_IBU, data.NAMA_WALI, data.ALAMAT_WALI, data.TELEPON_WALI,
-        data.JURUSAN, data.KEGEMARAN_OLAHRAGA, data.KEGEMARAN_KEMASYARAKATAN,
-        data.KEGEMARAN_HASTA_KARYA, now, data._id
-      ]);
+      const stmt = db.prepare(updateSql);
+      stmt.run([...updateParams, data._id]);
+      stmt.free();
       saveDb();
       res.json({ _id: data._id, message: 'Student updated' });
     } else {
       // Insert new student
       db.run(`
-        INSERT INTO students (
+INSERT INTO students (
           _id, NAMA_LENGKAP, NAMA_PANGGILAN, JENIS_KELAMIN, TEMPAT_LAHIR, TANGGAL_LAHIR,
           AGAMA, KEWARGANEGARAAN, ANAK_KE, SAUDARA_KANDUNG, SAUDARA_TIRI, SAUDARA_ANGKAT,
           BAHASA_SEHARI, ALAMAT, NOMOR_TELEPON, TINGGAL_DENGAN, JARAK_KE_SEKOLAH,
           ALAT_TRANSPORTASI, BERAT_BADAN, TINGGI_BADAN, GOLONGAN_DARAH, PENYAKIT,
           ASAL_SD, NOMOR_STTB_SD, TANGGAL_STTB_SD, LAMA_SD, ASAL_SMP, NOMOR_STTB_SMP,
           TANGGAL_STTB_SMP, LAMA_SMP, NAMA_AYAH, TTL_AYAH, ALAMAT_AYAH, TELEPON_AYAH,
-          PEKERJAAN_AYAH, PENGHASILAN_AYAH, PENDIDIKAN_AYAH, KEWARGANEGARAAN_AYAH,
-          NAMA_IBU, TTL_IBU, ALAMAT_IBU, TELEPON_IBU, PEKERJAAN_IBU, PENGHASILAN_IBU,
+          PEKERJAAN_AYAH, PENGHASILAN_AYAH, PENDIDIKAN_AYAH, KEWARGANEGARAAN_AYAH, NAMA_IBU,
+          TTL_IBU, ALAMAT_IBU, TELEPON_IBU, PEKERJAAN_IBU, PENGHASILAN_IBU,
           PENDIDIKAN_IBU, KEWARGANEGARAAN_IBU, NAMA_WALI, ALAMAT_WALI, TELEPON_WALI,
           JURUSAN, KEGEMARAN_OLAHRAGA, KEGEMARAN_KEMASYARAKATAN, KEGEMARAN_HASTA_KARYA,
           createdAt
         ) VALUES (
-          ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
-          ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
+          ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
+          ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
         )
       `, [
         id, data.NAMA_LENGKAP, data.NAMA_PANGGILAN, data.JENIS_KELAMIN, data.TEMPAT_LAHIR,
@@ -306,11 +289,10 @@ app.post('/api/students', (req, res) => {
       res.json({ _id: id, message: 'Student created' });
     }
   } catch (err) {
+    console.error('POST /api/students error:', err.message, err.stack);
     res.status(500).json({ error: err.message });
   }
 });
-
-// Delete student
 app.delete('/api/students/:id', (req, res) => {
   try {
     db.run('DELETE FROM students WHERE _id = ?', [req.params.id]);

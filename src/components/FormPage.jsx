@@ -150,8 +150,8 @@ const FormPage = ({ students, onSubmit, getStudent }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = await onSubmit(formData);
-    if (success) {
+    const result = await onSubmit(formData);
+    if (result === true) {
       alert('Data berhasil disimpan!');
       setFormData({
         NAMA_LENGKAP: '', NAMA_PANGGILAN: '', JENIS_KELAMIN: '', TEMPAT_LAHIR: '',
@@ -171,7 +171,7 @@ const FormPage = ({ students, onSubmit, getStudent }) => {
       setIsEdit(false);
       navigate('/data');
     } else {
-      alert('Gagal menyimpan data. Silakan coba lagi.');
+      alert(`Gagal menyimpan data. ${typeof result === 'string' ? result : 'Silakan coba lagi.'}`);
     }
   };
 

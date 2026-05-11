@@ -1,0 +1,32 @@
+import initSqlJs from 'sql.js';
+
+async function test() {
+  const SQL = await initSqlJs();
+  const db = new SQL.Database();
+  
+  // Test INSERT with 54 placeholders
+  const sql = `INSERT INTO students (
+    _id, NAMA_LENGKAP, NAMA_PANGGILAN, JENIS_KELAMIN, TEMPAT_LAHIR, TANGGAL_LAHIR,
+    AGAMA, KEWARGANEGARAAN, ANAK_KE, SAUDARA_KANDUNG, SAUDARA_TIRI, SAUDARA_ANGKAT,
+    BAHASA_SEHARI, ALAMAT, NOMOR_TELEPON, TINGGAL_DENGAN, JARAK_KE_SEKOLAH,
+    ALAT_TRANSPORTASI, BERAT_BADAN, TINGGI_BADAN, GOLONGAN_DARAH, PENYAKIT,
+    ASAL_SD, NOMOR_STTB_SD, TANGGAL_STTB_SD, LAMA_SD, ASAL_SMP, NOMOR_STTB_SMP,
+    TANGGAL_STTB_SMP, LAMA_SMP, NAMA_AYAH, TTL_AYAH, ALAMAT_AYAH, TELEPON_AYAH,
+    PEKERJAAN_AYAH, PENGHASILAN_AYAH, PENDIDIKAN_AYAH, KEWARGANEGARAAN_AYAH,
+    NAMA_IBU, TTL_IBU, ALAMAT_IBU, TELEPON_IBU, PEKERJAAN_IBU, PENGHASILAN_IBU,
+    PENDIDIKAN_IBU, KEWARGANEGARAAN_IBU, NAMA_WALI, ALAMAT_WALI, TELEPON_WALI,
+    JURUSAN, KEGEMARAN_OLAHRAGA, KEGEMARAN_KEMASYARAKATAN, KEGEMARAN_HASTA_KARYA,
+    createdAt
+  ) VALUES (
+    ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
+  )`;
+  
+  try {
+    db.run(sql, Array(34).fill('test'));
+    console.log('SQL OK with 34 placeholders in single line');
+  } catch(e) {
+    console.log('Error:', e.message);
+  }
+}
+
+test();

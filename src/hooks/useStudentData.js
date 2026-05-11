@@ -41,7 +41,7 @@ export const useStudentData = () => {
 
       if (!response.ok) {
         const err = await response.json();
-        throw new Error(err.error || 'Failed to save student');
+        throw new Error(err.error || `HTTP ${response.status}: Failed to save student`);
       }
 
       await fetchStudents();
@@ -49,7 +49,7 @@ export const useStudentData = () => {
     } catch (err) {
       setError(err.message);
       console.error('Error saving student:', err);
-      return false;
+      return err.message;
     }
   }, [fetchStudents]);
 

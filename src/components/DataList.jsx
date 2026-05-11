@@ -11,10 +11,9 @@ const DataList = ({ data, onDelete, onEdit, onPrint, filterJurusan = null }) => 
     item.NAMA_LENGKAP?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleEdit = (item) => {
-    onEdit(item);
-    navigate('/');
-  };
+   const handleEdit = (item) => {
+     navigate(`/?id=${item._id}`);
+   };
 
   const getNama = (item) => item.NAMA_LENGKAP || 'Tanpa Nama';
 
@@ -85,13 +84,13 @@ return (
                   </td>
                   <td>
                     <div className="action-buttons">
-                      <button
-                        className="btn-icon btn-view"
-                        onClick={() => onPrint(item)}
-                        title="Cetak"
-                      >
-                        🖨️
-                      </button>
+                   <button
+                     className="btn-icon btn-view"
+                     onClick={() => navigate(`/print?id=${item._id}`)}
+                     title="Cetak"
+                   >
+                     🖨️
+                   </button>
                       <button
                         className="btn-icon btn-edit"
                         onClick={() => handleEdit(item)}
