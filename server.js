@@ -127,6 +127,11 @@ async function initDb() {
       console.log('Indexes may already exist:', e.message);
     }
 
+    // Add new columns if not exist (migration)
+    ['TEMPAT_LAHIR_AYAH', 'TANGGAL_LAHIR_AYAH', 'TEMPAT_LAHIR_IBU', 'TANGGAL_LAHIR_IBU'].forEach(col => {
+      try { db.run(`ALTER TABLE students ADD COLUMN ${col} TEXT DEFAULT ''`); } catch(e) {}
+    });
+
     console.log('Database initialized successfully');
     return db;
   } catch (err) {
@@ -214,13 +219,15 @@ app.post('/api/students', (req, res) => {
       data.BERAT_BADAN, data.TINGGI_BADAN, data.GOLONGAN_DARAH, data.PENYAKIT,
       data.ASAL_SD, data.NOMOR_STTB_SD, data.TANGGAL_STTB_SD, data.LAMA_SD,
       data.ASAL_SMP, data.NOMOR_STTB_SMP, data.TANGGAL_STTB_SMP, data.LAMA_SMP,
-      data.NAMA_AYAH, data.TTL_AYAH, data.ALAMAT_AYAH, data.TELEPON_AYAH,
+      data.NAMA_AYAH, '', data.TEMPAT_LAHIR_AYAH || '', data.ALAMAT_AYAH, data.TELEPON_AYAH,
       data.PEKERJAAN_AYAH, data.PENGHASILAN_AYAH, data.PENDIDIKAN_AYAH,
-      data.KEWARGANEGARAAN_AYAH, data.NAMA_IBU, data.TTL_IBU, data.ALAMAT_IBU,
+      data.KEWARGANEGARAAN_AYAH, data.NAMA_IBU, '', data.TEMPAT_LAHIR_IBU || '', data.ALAMAT_IBU,
       data.TELEPON_IBU, data.PEKERJAAN_IBU, data.PENGHASILAN_IBU, data.PENDIDIKAN_IBU,
       data.KEWARGANEGARAAN_IBU, data.NAMA_WALI || '', data.ALAMAT_WALI || '', data.TELEPON_WALI || '',
       data.JURUSAN, data.KEGEMARAN_OLAHRAGA, data.KEGEMARAN_KEMASYARAKATAN,
-      data.KEGEMARAN_HASTA_KARYA, now
+      data.KEGEMARAN_HASTA_KARYA,
+      data.TANGGAL_LAHIR_AYAH || '', data.TANGGAL_LAHIR_IBU || '',
+      now
     ];
     const updateSql = `UPDATE students SET
       NAMA_PANGGILAN=?, JENIS_KELAMIN=?, TEMPAT_LAHIR=?, TANGGAL_LAHIR=?,
@@ -229,12 +236,14 @@ app.post('/api/students', (req, res) => {
       JARAK_KE_SEKOLAH=?, ALAT_TRANSPORTASI=?, BERAT_BADAN=?, TINGGI_BADAN=?,
       GOLONGAN_DARAH=?, PENYAKIT=?, ASAL_SD=?, NOMOR_STTB_SD=?, TANGGAL_STTB_SD=?,
       LAMA_SD=?, ASAL_SMP=?, NOMOR_STTB_SMP=?, TANGGAL_STTB_SMP=?, LAMA_SMP=?,
-      NAMA_AYAH=?, TTL_AYAH=?, ALAMAT_AYAH=?, TELEPON_AYAH=?, PEKERJAAN_AYAH=?,
+      NAMA_AYAH=?, TTL_AYAH=?, TEMPAT_LAHIR_AYAH=?, ALAMAT_AYAH=?, TELEPON_AYAH=?, PEKERJAAN_AYAH=?,
       PENGHASILAN_AYAH=?, PENDIDIKAN_AYAH=?, KEWARGANEGARAAN_AYAH=?, NAMA_IBU=?,
-      TTL_IBU=?, ALAMAT_IBU=?, TELEPON_IBU=?, PEKERJAAN_IBU=?, PENGHASILAN_IBU=?,
+      TTL_IBU=?, TEMPAT_LAHIR_IBU=?, ALAMAT_IBU=?, TELEPON_IBU=?, PEKERJAAN_IBU=?, PENGHASILAN_IBU=?,
       PENDIDIKAN_IBU=?, KEWARGANEGARAAN_IBU=?, NAMA_WALI=?, ALAMAT_WALI=?,
       TELEPON_WALI=?, JURUSAN=?, KEGEMARAN_OLAHRAGA=?, KEGEMARAN_KEMASYARAKATAN=?,
-      KEGEMARAN_HASTA_KARYA=?, updatedAt=?
+      KEGEMARAN_HASTA_KARYA=?,
+      TANGGAL_LAHIR_AYAH=?, TANGGAL_LAHIR_IBU=?,
+      updatedAt=?
       WHERE _id = ?`;
 
     if (existing && (!data._id || existing._id !== data._id)) {
@@ -258,15 +267,16 @@ INSERT INTO students (
           BAHASA_SEHARI, ALAMAT, NOMOR_TELEPON, TINGGAL_DENGAN, JARAK_KE_SEKOLAH,
           ALAT_TRANSPORTASI, BERAT_BADAN, TINGGI_BADAN, GOLONGAN_DARAH, PENYAKIT,
           ASAL_SD, NOMOR_STTB_SD, TANGGAL_STTB_SD, LAMA_SD, ASAL_SMP, NOMOR_STTB_SMP,
-          TANGGAL_STTB_SMP, LAMA_SMP, NAMA_AYAH, TTL_AYAH, ALAMAT_AYAH, TELEPON_AYAH,
-          PEKERJAAN_AYAH, PENGHASILAN_AYAH, PENDIDIKAN_AYAH, KEWARGANEGARAAN_AYAH, NAMA_IBU,
-          TTL_IBU, ALAMAT_IBU, TELEPON_IBU, PEKERJAAN_IBU, PENGHASILAN_IBU,
+          TANGGAL_STTB_SMP, LAMA_SMP, NAMA_AYAH, TTL_AYAH, TEMPAT_LAHIR_AYAH, TANGGAL_LAHIR_AYAH,
+          ALAMAT_AYAH, TELEPON_AYAH, PEKERJAAN_AYAH, PENGHASILAN_AYAH, PENDIDIKAN_AYAH,
+          KEWARGANEGARAAN_AYAH, NAMA_IBU, TTL_IBU, TEMPAT_LAHIR_IBU, TANGGAL_LAHIR_IBU,
+          ALAMAT_IBU, TELEPON_IBU, PEKERJAAN_IBU, PENGHASILAN_IBU,
           PENDIDIKAN_IBU, KEWARGANEGARAAN_IBU, NAMA_WALI, ALAMAT_WALI, TELEPON_WALI,
           JURUSAN, KEGEMARAN_OLAHRAGA, KEGEMARAN_KEMASYARAKATAN, KEGEMARAN_HASTA_KARYA,
           createdAt
         ) VALUES (
           ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
-          ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
+          ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
         )
       `, [
         id, data.NAMA_LENGKAP, data.NAMA_PANGGILAN, data.JENIS_KELAMIN, data.TEMPAT_LAHIR,
@@ -276,9 +286,11 @@ INSERT INTO students (
         data.JARAK_KE_SEKOLAH, data.ALAT_TRANSPORTASI, data.BERAT_BADAN, data.TINGGI_BADAN,
         data.GOLONGAN_DARAH, data.PENYAKIT, data.ASAL_SD, data.NOMOR_STTB_SD,
         data.TANGGAL_STTB_SD, data.LAMA_SD, data.ASAL_SMP, data.NOMOR_STTB_SMP,
-        data.TANGGAL_STTB_SMP, data.LAMA_SMP, data.NAMA_AYAH, data.TTL_AYAH,
+        data.TANGGAL_STTB_SMP, data.LAMA_SMP,
+        data.NAMA_AYAH, '', data.TEMPAT_LAHIR_AYAH || '', data.TANGGAL_LAHIR_AYAH || '',
         data.ALAMAT_AYAH, data.TELEPON_AYAH, data.PEKERJAAN_AYAH, data.PENGHASILAN_AYAH,
-        data.PENDIDIKAN_AYAH, data.KEWARGANEGARAAN_AYAH, data.NAMA_IBU, data.TTL_IBU,
+        data.PENDIDIKAN_AYAH, data.KEWARGANEGARAAN_AYAH,
+        data.NAMA_IBU, '', data.TEMPAT_LAHIR_IBU || '', data.TANGGAL_LAHIR_IBU || '',
         data.ALAMAT_IBU, data.TELEPON_IBU, data.PEKERJAAN_IBU, data.PENGHASILAN_IBU,
         data.PENDIDIKAN_IBU, data.KEWARGANEGARAAN_IBU, data.NAMA_WALI || '',
         data.ALAMAT_WALI || '', data.TELEPON_WALI || '', data.JURUSAN,

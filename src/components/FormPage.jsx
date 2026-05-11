@@ -42,7 +42,8 @@ const FormPage = ({ students, onSubmit, getStudent }) => {
 
     // C. DATA ORANG TUA - Ayah
     NAMA_AYAH: '',
-    TTL_AYAH: '',
+    TEMPAT_LAHIR_AYAH: '',
+    TANGGAL_LAHIR_AYAH: '',
     ALAMAT_AYAH: '',
     TELEPON_AYAH: '',
     PEKERJAAN_AYAH: '',
@@ -52,7 +53,8 @@ const FormPage = ({ students, onSubmit, getStudent }) => {
 
     // C. DATA ORANG TUA - Ibu
     NAMA_IBU: '',
-    TTL_IBU: '',
+    TEMPAT_LAHIR_IBU: '',
+    TANGGAL_LAHIR_IBU: '',
     ALAMAT_IBU: '',
     TELEPON_IBU: '',
     PEKERJAAN_IBU: '',
@@ -112,7 +114,8 @@ const FormPage = ({ students, onSubmit, getStudent }) => {
           TANGGAL_STTB_SMP: student.TANGGAL_STTB_SMP || '',
           LAMA_SMP: student.LAMA_SMP || '',
           NAMA_AYAH: student.NAMA_AYAH || '',
-          TTL_AYAH: student.TTL_AYAH || '',
+          TEMPAT_LAHIR_AYAH: student.TEMPAT_LAHIR_AYAH || '',
+          TANGGAL_LAHIR_AYAH: student.TANGGAL_LAHIR_AYAH || '',
           ALAMAT_AYAH: student.ALAMAT_AYAH || '',
           TELEPON_AYAH: student.TELEPON_AYAH || '',
           PEKERJAAN_AYAH: student.PEKERJAAN_AYAH || '',
@@ -120,7 +123,8 @@ const FormPage = ({ students, onSubmit, getStudent }) => {
           PENDIDIKAN_AYAH: student.PENDIDIKAN_AYAH || '',
           KEWARGANEGARAAN_AYAH: student.KEWARGANEGARAAN_AYAH || '',
           NAMA_IBU: student.NAMA_IBU || '',
-          TTL_IBU: student.TTL_IBU || '',
+          TEMPAT_LAHIR_IBU: student.TEMPAT_LAHIR_IBU || '',
+          TANGGAL_LAHIR_IBU: student.TANGGAL_LAHIR_IBU || '',
           ALAMAT_IBU: student.ALAMAT_IBU || '',
           TELEPON_IBU: student.TELEPON_IBU || '',
           PEKERJAAN_IBU: student.PEKERJAAN_IBU || '',
@@ -161,9 +165,9 @@ const FormPage = ({ students, onSubmit, getStudent }) => {
         ALAT_TRANSPORTASI: '', BERAT_BADAN: '', TINGGI_BADAN: '', GOLONGAN_DARAH: '',
         PENYAKIT: '', ASAL_SD: '', NOMOR_STTB_SD: '', TANGGAL_STTB_SD: '', LAMA_SD: '',
         ASAL_SMP: '', NOMOR_STTB_SMP: '', TANGGAL_STTB_SMP: '', LAMA_SMP: '',
-        NAMA_AYAH: '', TTL_AYAH: '', ALAMAT_AYAH: '', TELEPON_AYAH: '',
+        NAMA_AYAH: '', TEMPAT_LAHIR_AYAH: '', TANGGAL_LAHIR_AYAH: '', ALAMAT_AYAH: '', TELEPON_AYAH: '',
         PEKERJAAN_AYAH: '', PENGHASILAN_AYAH: '', PENDIDIKAN_AYAH: '', KEWARGANEGARAAN_AYAH: '',
-        NAMA_IBU: '', TTL_IBU: '', ALAMAT_IBU: '', TELEPON_IBU: '',
+        NAMA_IBU: '', TEMPAT_LAHIR_IBU: '', TANGGAL_LAHIR_IBU: '', ALAMAT_IBU: '', TELEPON_IBU: '',
         PEKERJAAN_IBU: '', PENGHASILAN_IBU: '', PENDIDIKAN_IBU: '', KEWARGANEGARAAN_IBU: '',
         NAMA_WALI: '', ALAMAT_WALI: '', TELEPON_WALI: '',
         JURUSAN: '', KEGEMARAN_OLAHRAGA: '', KEGEMARAN_KEMASYARAKATAN: '', KEGEMARAN_HASTA_KARYA: ''
@@ -185,9 +189,9 @@ const FormPage = ({ students, onSubmit, getStudent }) => {
         ALAT_TRANSPORTASI: '', BERAT_BADAN: '', TINGGI_BADAN: '', GOLONGAN_DARAH: '',
         PENYAKIT: '', ASAL_SD: '', NOMOR_STTB_SD: '', TANGGAL_STTB_SD: '', LAMA_SD: '',
         ASAL_SMP: '', NOMOR_STTB_SMP: '', TANGGAL_STTB_SMP: '', LAMA_SMP: '',
-        NAMA_AYAH: '', TTL_AYAH: '', ALAMAT_AYAH: '', TELEPON_AYAH: '',
+        NAMA_AYAH: '', TEMPAT_LAHIR_AYAH: '', TANGGAL_LAHIR_AYAH: '', ALAMAT_AYAH: '', TELEPON_AYAH: '',
         PEKERJAAN_AYAH: '', PENGHASILAN_AYAH: '', PENDIDIKAN_AYAH: '', KEWARGANEGARAAN_AYAH: '',
-        NAMA_IBU: '', TTL_IBU: '', ALAMAT_IBU: '', TELEPON_IBU: '',
+        NAMA_IBU: '', TEMPAT_LAHIR_IBU: '', TANGGAL_LAHIR_IBU: '', ALAMAT_IBU: '', TELEPON_IBU: '',
         PEKERJAAN_IBU: '', PENGHASILAN_IBU: '', PENDIDIKAN_IBU: '', KEWARGANEGARAAN_IBU: '',
         NAMA_WALI: '', ALAMAT_WALI: '', TELEPON_WALI: '',
         JURUSAN: '', KEGEMARAN_OLAHRAGA: '', KEGEMARAN_KEMASYARAKATAN: '', KEGEMARAN_HASTA_KARYA: ''
@@ -401,8 +405,11 @@ const FormPage = ({ students, onSubmit, getStudent }) => {
                 <input type="text" name="NAMA_AYAH" value={formData.NAMA_AYAH} onChange={handleChange} placeholder="Nama lengkap ayah" required />
               </div>
               <div className="form-group">
-                <label>TTL <span>*</span></label>
-                <input type="text" name="TTL_AYAH" value={formData.TTL_AYAH} onChange={handleChange} placeholder="Tempat, tanggal lahir" required />
+                <label>Tempat/Tgl Lahir <span>*</span></label>
+                <div style={{display:'flex', gap:'8px'}}>
+                  <input type="text" name="TEMPAT_LAHIR_AYAH" value={formData.TEMPAT_LAHIR_AYAH} onChange={handleChange} placeholder="Tempat lahir" required style={{flex:1}} />
+                  <input type="date" name="TANGGAL_LAHIR_AYAH" value={formData.TANGGAL_LAHIR_AYAH} onChange={handleChange} required style={{flex:1}} />
+                </div>
               </div>
               <div className="form-group full-width">
                 <label>Alamat <span>*</span></label>
@@ -459,8 +466,11 @@ const FormPage = ({ students, onSubmit, getStudent }) => {
                 <input type="text" name="NAMA_IBU" value={formData.NAMA_IBU} onChange={handleChange} placeholder="Nama lengkap ibu" required />
               </div>
               <div className="form-group">
-                <label>TTL <span>*</span></label>
-                <input type="text" name="TTL_IBU" value={formData.TTL_IBU} onChange={handleChange} placeholder="Tempat, tanggal lahir" required />
+                <label>Tempat/Tgl Lahir <span>*</span></label>
+                <div style={{display:'flex', gap:'8px'}}>
+                  <input type="text" name="TEMPAT_LAHIR_IBU" value={formData.TEMPAT_LAHIR_IBU} onChange={handleChange} placeholder="Tempat lahir" required style={{flex:1}} />
+                  <input type="date" name="TANGGAL_LAHIR_IBU" value={formData.TANGGAL_LAHIR_IBU} onChange={handleChange} required style={{flex:1}} />
+                </div>
               </div>
               <div className="form-group full-width">
                 <label>Alamat <span>*</span></label>

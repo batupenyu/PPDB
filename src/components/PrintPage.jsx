@@ -2,6 +2,13 @@ import React, { useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { jsPDF } from 'jspdf';
 
+const formatDate = (val) => {
+  if (!val) return '';
+  const d = new Date(val);
+  if (isNaN(d)) return val;
+  return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+};
+
 const PrintPage = ({ data, onBack }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -36,27 +43,23 @@ const PrintPage = ({ data, onBack }) => {
     const valueX = colonX + 8;
     let y = 20;
 
-    doc.setFontSize(18);
+    doc.setFontSize(12);
     doc.setFont(undefined, 'bold');
     doc.text('FORMULIR PENERIMAAN SISWA BARU', pageWidth / 2, y, { align: 'center' });
-    y += 15;
+    y += 10;
 
     doc.setFontSize(12);
     doc.setFont(undefined, 'normal');
     doc.text(`Nama Lengkap: ${selectedData.NAMA_LENGKAP || '-'}`, leftMargin, y);
-    y += 10;
+    y += 7;
 
     const drawField = (label, value, yPos) => {
-      if (yPos > pageHeight - 30) {
-        doc.addPage();
-        y = 20;
-      }
-      doc.setFontSize(10);
+      doc.setFontSize(12);
       doc.setFont(undefined, 'normal');
       doc.text(label, labelStartX, yPos);
       doc.text(':', colonX, yPos);
       doc.text(String(value || '-'), valueX, yPos);
-      return yPos + 7;
+      return yPos + 5;
     };
 
     const sections = {
@@ -90,7 +93,7 @@ const PrintPage = ({ data, onBack }) => {
       ],
       'C. DATA ORANG TUA - Ayah': [
         { key: 'NAMA_AYAH', label: 'Nama' },
-        { key: 'TTL_AYAH', label: 'TTL' },
+        { key: 'TEMPAT_LAHIR_AYAH', label: 'Tempat/Tgl Lahir', combined: 'TANGGAL_LAHIR_AYAH' },
         { key: 'ALAMAT_AYAH', label: 'Alamat', fullWidth: true },
         { key: 'TELEPON_AYAH', label: 'Telepon' },
         { key: 'PEKERJAAN_AYAH', label: 'Pekerjaan' },
@@ -100,7 +103,7 @@ const PrintPage = ({ data, onBack }) => {
       ],
       'C. DATA ORANG TUA - Ibu': [
         { key: 'NAMA_IBU', label: 'Nama' },
-        { key: 'TTL_IBU', label: 'TTL' },
+        { key: 'TEMPAT_LAHIR_IBU', label: 'Tempat/Tgl Lahir', combined: 'TANGGAL_LAHIR_IBU' },
         { key: 'ALAMAT_IBU', label: 'Alamat', fullWidth: true },
         { key: 'TELEPON_IBU', label: 'Telepon' },
         { key: 'PEKERJAAN_IBU', label: 'Pekerjaan' },
@@ -121,52 +124,73 @@ const PrintPage = ({ data, onBack }) => {
       ]
     };
 
-    Object.entries(sections).forEach(([sectionTitle, fields]) => {
-      if (y > pageHeight - 60) {
-        doc.addPage();
-        y = 20;
-      }
+    const page1Sections = ['A. DATA PRIBADI SISWA', 'B. RIWAYAT PENDIDIKAN', 'C. DATA ORANG TUA - Ayah'];
+    const page2Sections = ['C. DATA ORANG TUA - Ibu', 'D. DATA WALI', 'E. JURUSAN & MINAT'];
 
-      doc.setFontSize(14);
-      doc.setFont(undefined, 'bold');
-      doc.text(sectionTitle, leftMargin, y);
-      y += 12;
+    const renderSections = (keys) => {
+      keys.forEach(sectionTitle => {
+        const fields = sections[sectionTitle];
+        if (!fields) return;
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'bold');
+        doc.text(sectionTitle, leftMargin, y);
+        y += 7;
 
-      doc.setFontSize(10);
-      doc.setFont(undefined, 'normal');
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'normal');
 
-      fields.forEach(field => {
-        if (field.condition && !field.condition) return;
-
-        const value = selectedData[field.key];
-
-        if (field.combined) {
-          if (Array.isArray(field.combined)) {
-            const combinedValue = `${value || 0}, ${selectedData[field.combined[0]] || 0}, ${selectedData[field.combined[1]] || 0}`;
-            y = drawField(field.label, combinedValue, y);
+        fields.forEach(field => {
+          if (field.condition !== undefined && !field.condition) return;
+          const value = selectedData[field.key];
+          if (field.combined) {
+            if (Array.isArray(field.combined)) {
+              const combinedValue = `${value || 0}, ${selectedData[field.combined[0]] || 0}, ${selectedData[field.combined[1]] || 0}`;
+              y = drawField(field.label, combinedValue, y);
+            } else {
+              const combinedValue = `${value}, ${formatDate(selectedData[field.combined])}`;
+              y = drawField(field.label, combinedValue, y);
+            }
+          } else if (field.key === 'BERAT_BADAN') {
+            y = drawField(field.label, `${selectedData.BERAT_BADAN} kg / ${selectedData.TINGGI_BADAN} cm`, y);
           } else {
-            const combinedValue = `${value}, ${selectedData[field.combined]}`;
-            if (field.suffix) combinedValue += field.suffix;
-            y = drawField(field.label, combinedValue, y);
+            let displayValue = field.key.startsWith('TANGGAL_') ? formatDate(value) : value;
+            if (field.suffix) displayValue = (displayValue || '') + field.suffix;
+            y = drawField(field.label, displayValue, y);
           }
-        } else if (field.key === 'BERAT_BADAN') {
-          const combined = `${selectedData.BERAT_BADAN} kg / ${selectedData.TINGGI_BADAN} cm`;
-          y = drawField(field.label, combined, y);
-        } else {
-          let displayValue = value;
-          if (field.suffix) displayValue += field.suffix;
-          y = drawField(field.label, displayValue, y);
-        }
+        });
+        y += 3;
       });
-      y += 5;
-    });
+    };
 
+    renderSections(page1Sections);
+    doc.addPage();
+    y = 20;
+    renderSections(page2Sections);
+
+    // Tanda tangan
     y += 10;
-    if (y > pageHeight - 50) {
-      doc.addPage();
-      y = 20;
-    }
+    const signDate = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+    const col1X = leftMargin;
+    const col2X = pageWidth / 2 + 10;
 
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'normal');
+    doc.text('Orang Tua / Wali', col1X, y, { align: 'left' });
+    doc.text('Pendaftar', col2X, y, { align: 'left' });
+
+    y += 5;
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'italic');
+    doc.text(`Tanggal: ${signDate}`, col1X, y);
+    doc.text(`Tanggal: ${signDate}`, col2X, y);
+
+    y += 25;
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'normal');
+    doc.text('(________________________)', col1X, y);
+    doc.text(`(${selectedData.NAMA_LENGKAP || '________________________'})`, col2X, y);
+
+    y += 15;
     doc.setFontSize(10);
     doc.setFont(undefined, 'italic');
     doc.text(`Dicetak pada: ${new Date().toLocaleDateString('id-ID')}`, leftMargin, y);
@@ -290,7 +314,7 @@ const PrintPage = ({ data, onBack }) => {
                   <div className="print-field">
                     <span className="print-field-label">Tempat/Tgl Lahir</span>
                     <span className="print-field-colon">:</span>
-                    <span className="print-field-value">{selectedData.TEMPAT_LAHIR}, {selectedData.TANGGAL_LAHIR}</span>
+                    <span className="print-field-value">{selectedData.TEMPAT_LAHIR}, {formatDate(selectedData.TANGGAL_LAHIR)}</span>
                   </div>
                   <div className="print-field">
                     <span className="print-field-label">Agama</span>
@@ -378,7 +402,7 @@ const PrintPage = ({ data, onBack }) => {
                     <div className="print-field">
                       <span className="print-field-label">Tanggal STTB SD</span>
                       <span className="print-field-colon">:</span>
-                      <span className="print-field-value">{selectedData.TANGGAL_STTB_SD}</span>
+                      <span className="print-field-value">{formatDate(selectedData.TANGGAL_STTB_SD)}</span>
                     </div>
                     <div className="print-field">
                       <span className="print-field-label">Lama SD</span>
@@ -401,7 +425,7 @@ const PrintPage = ({ data, onBack }) => {
                     <div className="print-field">
                       <span className="print-field-label">Tanggal STTB SMP</span>
                       <span className="print-field-colon">:</span>
-                      <span className="print-field-value">{selectedData.TANGGAL_STTB_SMP}</span>
+                      <span className="print-field-value">{formatDate(selectedData.TANGGAL_STTB_SMP)}</span>
                     </div>
                     <div className="print-field">
                       <span className="print-field-label">Lama SMP</span>
@@ -423,9 +447,9 @@ const PrintPage = ({ data, onBack }) => {
                       <span className="print-field-value">{selectedData.NAMA_AYAH}</span>
                     </div>
                     <div className="print-field">
-                      <span className="print-field-label">TTL</span>
+                      <span className="print-field-label">Tempat/Tgl Lahir</span>
                       <span className="print-field-colon">:</span>
-                      <span className="print-field-value">{selectedData.TTL_AYAH}</span>
+                      <span className="print-field-value">{selectedData.TEMPAT_LAHIR_AYAH}, {formatDate(selectedData.TANGGAL_LAHIR_AYAH)}</span>
                     </div>
                     <div className="print-field">
                       <span className="print-field-label">Alamat</span>
@@ -466,9 +490,9 @@ const PrintPage = ({ data, onBack }) => {
                       <span className="print-field-value">{selectedData.NAMA_IBU}</span>
                     </div>
                     <div className="print-field">
-                      <span className="print-field-label">TTL</span>
+                      <span className="print-field-label">Tempat/Tgl Lahir</span>
                       <span className="print-field-colon">:</span>
-                      <span className="print-field-value">{selectedData.TTL_IBU}</span>
+                      <span className="print-field-value">{selectedData.TEMPAT_LAHIR_IBU}, {formatDate(selectedData.TANGGAL_LAHIR_IBU)}</span>
                     </div>
                     <div className="print-field">
                       <span className="print-field-label">Alamat</span>
