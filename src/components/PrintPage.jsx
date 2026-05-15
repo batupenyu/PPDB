@@ -444,7 +444,7 @@ const PrintPage = ({ data, onBack }) => {
                    <div className="statement-content">
                      <p>Dengan ini menyatakan bahwa:</p>
                      <ol className="statement-list">
-                       <li>Saya dengan sadar dan tanpa paksaan dari pihak manapun bersungguh-sungguh untuk mendaftar sebagai Peserta Didik SMK Negeri 1 Koba Tahun Pelajaran 2026/2027 serta mengikuti dan mentaati dengan sungguh-sungguh setiap prosedur pendaftaran di SMK Negeri 1 Koba sesuai Petunjuk Teknis Penerimaan Peserta Didik Baru (PPDB).</li>
+                       <li>Saya dengan sadar dan tanpa paksaan dari pihak manapun bersungguh-sungguh untuk mendaftar sebagai Peserta Didik SMK Negeri 1 Koba Tahun Pelajaran 2026/2027 serta mengikuti dan mentaati dengan sungguh-sungguh setiap prosedur pendaftaran di SMK Negeri 1 Koba sesuai Sistem Penerimaan Murid Baru (SPMB).</li>
                        <li>Setelah saya dinyatakan diterima sebagai Peserta Didik SMK Negeri 1 Koba maka saya akan mentaati dan melaksanakan Tata Tertib SMK Negeri 1 Koba yang berlaku dan bersedia menerima sanksi dan dikembalikan kepada Orang Tua /dikeluarkan apabila saya melanggar Tata Tertib SMK Negeri 1 Koba.</li>
                        <li>Orang Tua / Wali saya bersedia datang ke sekolah apabila diundang oleh pihak sekolah.</li>
                      </ol>
