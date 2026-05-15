@@ -1,4 +1,4 @@
-﻿import React, { useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const formatDate = (val) => {
@@ -38,12 +38,12 @@ const PrintPage = ({ data, onBack }) => {
         {/* Navigation */}
         <nav className="top-nav">
           <div className="nav-brand" onClick={() => navigate('/')} style={{cursor: 'pointer'}}>
-            🏫 PPDB Online
+            🏫 SPMB Online
           </div>
         <div className="nav-links">
           <button onClick={() => navigate('/')} className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>Formulir</button>
           <button onClick={() => navigate('/dashboard')} className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}>Dashboard</button>
-          <button onClick={() => navigate('/data')} className={`nav-link ${location.pathname === '/data' ? 'active' : ''}`}>Data Siswa</button>
+          <button onClick={() => navigate('/data')} className={`nav-link ${location.pathname === '/data' ? 'active' : ''}`}>Data Murid</button>
           <button onClick={() => navigate('/export-import')} className={`nav-link ${location.pathname === '/export-import' ? 'active' : ''}`}>Excel</button>
           <button onClick={() => navigate('/print')} className={`nav-link ${location.pathname === '/print' ? 'active' : ''}`}>Cetak</button>
         </div>
@@ -53,7 +53,7 @@ const PrintPage = ({ data, onBack }) => {
         <button className="btn btn-secondary" onClick={() => navigate('/data')}>
           ← Kembali ke Data
         </button>
-        <h2 style={{margin: '0 20px', flex: 1, borderBottom: 'none', paddingBottom: 0}}>🖨️</h2>
+        <h2 style={{margin: '0 20px', flex: 1, borderBottom: 'none', paddingBottom: 0}}>🖨️ Cetak Formulir</h2>
 
         <div className="select-wrapper">
           <select
@@ -61,7 +61,7 @@ const PrintPage = ({ data, onBack }) => {
             onChange={(e) => setSelectedName(e.target.value)}
             className="name-select"
           >
-            <option value="">Pilih nama siswa...</option>
+            <option value="">Pilih nama murid...</option>
             {filteredOptions.map(opt => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
@@ -91,7 +91,7 @@ const PrintPage = ({ data, onBack }) => {
         <div className="print-preview-wrapper">
           <div ref={printRef} className="printable-document">
             <div className="print-header">
-              <h1>FORMULIR PENERIMAAN SISWA BARU</h1>
+              <h1>FORMULIR PENERIMAAN MURID BARU</h1>
               <div className="print-date">Tanggal Cetak: {new Date().toLocaleDateString('id-ID')}</div>
             </div>
 
@@ -400,7 +400,7 @@ const PrintPage = ({ data, onBack }) => {
                    <p className="statement-intro">Saya yang bertanda tangan di bawah ini:</p>
                    <div className="statement-grid">
                      <div className="print-field">
-                       <span className="print-field-label">Nama Calon Siswa</span>
+                       <span className="print-field-label">Nama Calon Murid</span>
                        <span className="print-field-colon">:</span>
                        <span className="print-field-value">{selectedData.NAMA_LENGKAP}</span>
                      </div>

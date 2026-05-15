@@ -27,18 +27,18 @@ return (
         <div className="nav-links">
           <button onClick={() => navigate('/')} className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>Formulir</button>
           <button onClick={() => navigate('/dashboard')} className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}>Dashboard</button>
-          <button onClick={() => navigate('/data')} className={`nav-link ${location.pathname === '/data' ? 'active' : ''}`}>Data Siswa</button>
+          <button onClick={() => navigate('/data')} className={`nav-link ${location.pathname === '/data' ? 'active' : ''}`}>Data Murid</button>
           <button onClick={() => navigate('/export-import')} className={`nav-link ${location.pathname === '/export-import' ? 'active' : ''}`}>Excel</button>
           <button onClick={() => navigate('/print')} className={`nav-link ${location.pathname === '/print' ? 'active' : ''}`}>Cetak</button>
         </div>
     </nav>
     
     <div className="page-header">
-      <h2>📊 Data Siswa Terdaftar</h2>
+      <h2>📊 Data Murid Terdaftar</h2>
         <div className="search-box">
           <input
             type="text"
-            placeholder="Cari nama siswa..."
+            placeholder="Cari nama murid..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
@@ -50,7 +50,7 @@ return (
         <div className="empty-state">
           <div className="empty-icon">📭</div>
           <h3>Belum ada data</h3>
-          <p>Mulai menambahkan data siswaFormulir Pendaftaran</p>
+          <p>Mulai menambahkan data muridFormulir Pendaftaran</p>
           <button onClick={() => navigate('/')} className="btn btn-primary">
             Tambah Data Baru
           </button>

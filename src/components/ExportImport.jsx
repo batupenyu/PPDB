@@ -62,7 +62,7 @@ const ExportImport = ({ data, onImport, onExportAll }) => {
         <div className="nav-links">
           <button onClick={() => navigate('/')} className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>Formulir</button>
           <button onClick={() => navigate('/dashboard')} className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}>Dashboard</button>
-          <button onClick={() => navigate('/data')} className={`nav-link ${location.pathname === '/data' ? 'active' : ''}`}>Data Siswa</button>
+          <button onClick={() => navigate('/data')} className={`nav-link ${location.pathname === '/data' ? 'active' : ''}`}>Data Murid</button>
           <button onClick={() => navigate('/export-import')} className={`nav-link ${location.pathname === '/export-import' ? 'active' : ''}`}>Excel</button>
           <button onClick={() => navigate('/print')} className={`nav-link ${location.pathname === '/print' ? 'active' : ''}`}>Cetak</button>
         </div>
@@ -75,7 +75,7 @@ const ExportImport = ({ data, onImport, onExportAll }) => {
         <div className="card">
           <div className="card-icon">📤</div>
           <h3>Export Data</h3>
-          <p>Download semua data siswa dalam format Excel</p>
+          <p>Download semua data murid dalam format Excel</p>
           <div className="card-stats">
             <span className="stat">{data.length} data tersedia</span>
           </div>
@@ -92,7 +92,7 @@ const ExportImport = ({ data, onImport, onExportAll }) => {
         <div className="card">
           <div className="card-icon">📥</div>
           <h3>Import Data</h3>
-          <p>Upload file Excel untuk mengimpor data siswa</p>
+          <p>Upload file Excel untuk mengimpor data murid</p>
           <div
             className={`drop-zone ${isDragging ? 'dragging' : ''} ${importStatus ? 'success' : ''}`}
             onDrop={handleDrop}

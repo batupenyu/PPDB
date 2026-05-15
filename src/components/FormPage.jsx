@@ -210,14 +210,14 @@ const FormPage = ({ students, onSubmit, getStudent }) => {
          <div className="nav-links">
            <button onClick={() => navigate('/')} className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>Formulir</button>
            <button onClick={() => navigate('/dashboard')} className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}>Dashboard</button>
-           <button onClick={() => navigate('/data')} className={`nav-link ${location.pathname === '/data' ? 'active' : ''}`}>Data Siswa</button>
+           <button onClick={() => navigate('/data')} className={`nav-link ${location.pathname === '/data' ? 'active' : ''}`}>Data Murid</button>
            <button onClick={() => navigate('/export-import')} className={`nav-link ${location.pathname === '/export-import' ? 'active' : ''}`}>Excel</button>
            <button onClick={() => navigate('/print')} className={`nav-link ${location.pathname === '/print' ? 'active' : ''}`}>Cetak</button>
          </div>
        </nav>
 
       <h1 style={{marginTop: '20px'}}>
-        {isEdit ? '✏️ Edit Data Siswa' : '📝 Formulir Penerimaan Siswa Baru'}
+        {isEdit ? '✏️ Edit Data Murid' : '📝 Formulir Penerimaan Murid Baru'}
       </h1>
       {isEdit && (
         <div style={{background: '#fff3cd', padding: '10px', borderRadius: '8px', marginBottom: '20px', color: '#856404'}}>
