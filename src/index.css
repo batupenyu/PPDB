@@ -714,7 +714,7 @@ input:focus, select:focus, textarea:focus {
 @media print {
   .print-controls { display: none !important; }
   .print-preview-wrapper { box-shadow: none; }
-  .printable-document { padding: 0; }
+  .printable-document { padding: 0; margin-top: 2cm; }
 }
 
 @media (max-width: 768px) {
