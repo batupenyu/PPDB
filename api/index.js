@@ -8,7 +8,7 @@ const app = express();
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
-const sql = () => neon(process.env.DATABASE_URL);
+const sql = () => neon(process.env.POSTGRES_URL);
 
 async function initDb() {
   const db = sql();
