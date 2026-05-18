@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
-import { neon } from '@neondatabase/serverless';
+import { neon, neonConfig } from '@neondatabase/serverless';
+
+neonConfig.fetchConnectionCache = true;
 
 const app = express();
 app.use(cors({ origin: '*' }));
