@@ -270,7 +270,37 @@ app.post('/api/students', async (req, res) => {
     } else {
       const id = d._id || genId();
       const row = toRow(d, id, now, true);
-      await db`INSERT INTO students ${db(row)}`;
+      await db`INSERT INTO students (
+        id, nama_lengkap, nama_panggilan, jenis_kelamin, tempat_lahir, tanggal_lahir,
+        agama, kewarganegaraan, anak_ke, saudara_kandung, saudara_tiri, saudara_angkat,
+        bahasa_sehari, alamat, nomor_telepon, tinggal_dengan, jarak_ke_sekolah,
+        alat_transportasi, berat_badan, tinggi_badan, golongan_darah, penyakit,
+        asal_sd, nomor_sttb_sd, tanggal_sttb_sd, lama_sd,
+        asal_smp, nomor_sttb_smp, tanggal_sttb_smp, lama_smp,
+        nama_ayah, tempat_lahir_ayah, tanggal_lahir_ayah, alamat_ayah,
+        telepon_ayah, pekerjaan_ayah, penghasilan_ayah, pendidikan_ayah, kewarganegaraan_ayah,
+        nama_ibu, tempat_lahir_ibu, tanggal_lahir_ibu, alamat_ibu,
+        telepon_ibu, pekerjaan_ibu, penghasilan_ibu, pendidikan_ibu, kewarganegaraan_ibu,
+        nama_wali, alamat_wali, telepon_wali,
+        jurusan, kegemaran_olahraga, kegemaran_kemasyarakatan, kegemaran_hasta_karya, created_at
+      ) VALUES (
+        ${row.id}, ${row.nama_lengkap}, ${row.nama_panggilan}, ${row.jenis_kelamin},
+        ${row.tempat_lahir}, ${row.tanggal_lahir}, ${row.agama}, ${row.kewarganegaraan},
+        ${row.anak_ke}, ${row.saudara_kandung}, ${row.saudara_tiri}, ${row.saudara_angkat},
+        ${row.bahasa_sehari}, ${row.alamat}, ${row.nomor_telepon}, ${row.tinggal_dengan},
+        ${row.jarak_ke_sekolah}, ${row.alat_transportasi}, ${row.berat_badan}, ${row.tinggi_badan},
+        ${row.golongan_darah}, ${row.penyakit}, ${row.asal_sd}, ${row.nomor_sttb_sd},
+        ${row.tanggal_sttb_sd}, ${row.lama_sd}, ${row.asal_smp}, ${row.nomor_sttb_smp},
+        ${row.tanggal_sttb_smp}, ${row.lama_smp},
+        ${row.nama_ayah}, ${row.tempat_lahir_ayah}, ${row.tanggal_lahir_ayah}, ${row.alamat_ayah},
+        ${row.telepon_ayah}, ${row.pekerjaan_ayah}, ${row.penghasilan_ayah}, ${row.pendidikan_ayah},
+        ${row.kewarganegaraan_ayah}, ${row.nama_ibu}, ${row.tempat_lahir_ibu}, ${row.tanggal_lahir_ibu},
+        ${row.alamat_ibu}, ${row.telepon_ibu}, ${row.pekerjaan_ibu}, ${row.penghasilan_ibu},
+        ${row.pendidikan_ibu}, ${row.kewarganegaraan_ibu},
+        ${row.nama_wali}, ${row.alamat_wali}, ${row.telepon_wali},
+        ${row.jurusan}, ${row.kegemaran_olahraga}, ${row.kegemaran_kemasyarakatan},
+        ${row.kegemaran_hasta_karya}, ${row.created_at}
+      )`;
       res.json({ _id: id, message: 'Student created' });
     }
   } catch (err) {
