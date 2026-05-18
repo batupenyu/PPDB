@@ -549,7 +549,7 @@ const PrintPage = ({ data, onBack }) => {
            .top-nav { display: none !important; }
            .print-controls { display: none !important; }
            .print-preview-wrapper { box-shadow: none; }
-           .printable-document { padding: 0; margin-top: 2cm; }
+           .printable-document { padding: 0; margin-top: 0cm; }
            .surat-pernyataan { page-break-after: always; }
          }
          @media (max-width: 768px) {
