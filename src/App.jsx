@@ -6,11 +6,15 @@ import DataList from './components/DataList';
 import ExportImport from './components/ExportImport';
 import PrintPage from './components/PrintPage';
 import FormPage from './components/FormPage';
+import LoginPage from './components/LoginPage';
 import { exportToExcel } from './utils/excel';
 import './index.css';
 
 function App() {
+  const [authed, setAuthed] = useState(!!sessionStorage.getItem('auth'));
   const { students, loading, error, addStudent, deleteStudent, getStats, getStudent, getJurusanStats, clearAll, refresh } = useStudentData();
+
+  if (!authed) return <LoginPage onLogin={() => setAuthed(true)} />;
   const [stats, setStats] = useState({ total: 0, today: 0, recent: 0 });
   const [jurusanStats, setJurusanStats] = useState([]);
 
