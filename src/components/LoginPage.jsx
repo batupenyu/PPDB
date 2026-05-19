@@ -19,7 +19,7 @@ export default function LoginPage({ onLogin }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#f5f5f5' }}>
       <div style={{ background: '#fff', padding: '40px', borderRadius: '8px', boxShadow: '0 2px 12px rgba(0,0,0,0.1)', width: '320px' }}>
-        <h2 style={{ textAlign: 'center', marginBottom: '24px' }}>🔐 Login PPDB</h2>
+        <h2 style={{ textAlign: 'center', marginBottom: '24px' }}>🔐 Login SPMB</h2>
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '16px' }}>
             <label>Username</label>

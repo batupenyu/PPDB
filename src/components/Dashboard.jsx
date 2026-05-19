@@ -45,7 +45,7 @@ const Dashboard = ({ stats, jurusanStats = [] }) => {
       {/* Navigation */}
       <nav className="top-nav">
         <div className="nav-brand" onClick={() => navigate('/')} style={{cursor: 'pointer'}}>
-          🏫 PPDB Online
+          🏫 SPMB Online
         </div>
         <div className="nav-links">
           <button onClick={() => navigate('/')} className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>Formulir</button>
