@@ -378,20 +378,19 @@ const PrintPage = ({ data, onBack }) => {
                      <span className="print-field-value">{selectedData.KEGEMARAN_HASTA_KARYA}</span>
                    </div>
                  </div>
+                 <div className="print-footer">
+                   <div className="signature-section">
+                     <div className="signature-box">
+                       <p>Orang Tua/Wali</p>
+                       <div className="signature-line"></div>
+                     </div>
+                     <div className="signature-box">
+                       <p>Pendaftar</p>
+                       <div className="signature-line"></div>
+                     </div>
+                   </div>
+                 </div>
                </section>
-
-              <div className="print-footer">
-                <div className="signature-section">
-                  <div className="signature-box">
-                    <p>Orang Tua/Wali</p>
-                    <div className="signature-line"></div>
-                  </div>
-                  <div className="signature-box">
-                    <p>Pendaftar</p>
-                    <div className="signature-line"></div>
-                  </div>
-                </div>
-              </div>
 
                <section className="print-section surat-pernyataan">
                  <h2 style={{textAlign: 'center', borderBottom: 'none'}}>SURAT PERNYATAAN</h2>
