@@ -184,21 +184,6 @@ const PrintPage = ({ data, onBack }) => {
                     <span className="print-field-colon">:</span>
                     <span className="print-field-value">{selectedData.PENYAKIT}</span>
                   </div>
-                  <div className="print-field">
-                    <span className="print-field-label">Nama Ayah</span>
-                    <span className="print-field-colon">:</span>
-                    <span className="print-field-value">{selectedData.NAMA_AYAH}</span>
-                  </div>
-                  <div className="print-field">
-                    <span className="print-field-label">Tempat/Tgl Lahir Ayah</span>
-                    <span className="print-field-colon">:</span>
-                    <span className="print-field-value">{selectedData.TEMPAT_LAHIR_AYAH}, {formatDate(selectedData.TANGGAL_LAHIR_AYAH)}</span>
-                  </div>
-                  <div className="print-field full-width">
-                    <span className="print-field-label">Alamat Ayah</span>
-                    <span className="print-field-colon">:</span>
-                    <span className="print-field-value">{selectedData.ALAMAT_AYAH}</span>
-                  </div>
                 </div>
               </section>
 
@@ -252,15 +237,28 @@ const PrintPage = ({ data, onBack }) => {
                     </div>
                   </div>
                 </div>
-                <div className="parents-grid">
-                  <h2>C. DATA ORANG TUA</h2>
-                  <h3>Ayah</h3>
-                </div>
               </section>
 
-              <section className="print-section" style={{pageBreakBefore: 'always'}}>
+              <section className="print-section">
+                <h2>C. DATA ORANG TUA</h2>
                 <div className="parents-grid">
                   <div className="parent-box">
+                    <h3>Ayah</h3>
+                    <div className="print-field">
+                      <span className="print-field-label">Nama</span>
+                      <span className="print-field-colon">:</span>
+                      <span className="print-field-value">{selectedData.NAMA_AYAH}</span>
+                    </div>
+                    <div className="print-field">
+                      <span className="print-field-label">Tempat/Tgl Lahir</span>
+                      <span className="print-field-colon">:</span>
+                      <span className="print-field-value">{selectedData.TEMPAT_LAHIR_AYAH}, {formatDate(selectedData.TANGGAL_LAHIR_AYAH)}</span>
+                    </div>
+                    <div className="print-field">
+                      <span className="print-field-label">Alamat</span>
+                      <span className="print-field-colon">:</span>
+                      <span className="print-field-value">{selectedData.ALAMAT_AYAH}</span>
+                    </div>
                     <div className="print-field">
                       <span className="print-field-label">Telepon</span>
                       <span className="print-field-colon">:</span>
@@ -382,11 +380,69 @@ const PrintPage = ({ data, onBack }) => {
                  </div>
                </section>
 
+              <div className="print-footer">
+                <div className="signature-section">
+                  <div className="signature-box">
+                    <p>Orang Tua/Wali</p>
+                    <div className="signature-line"></div>
+                  </div>
+                  <div className="signature-box">
+                    <p>Pendaftar</p>
+                    <div className="signature-line"></div>
+                  </div>
+                </div>
+              </div>
+
                <section className="print-section surat-pernyataan">
                  <h2 style={{textAlign: 'center', borderBottom: 'none'}}>SURAT PERNYATAAN</h2>
+                 
                  <div className="statement-info">
-                   <p className="statement-intro">Saya yang bertanda tangan di bawah ini, <strong>{selectedData.NAMA_LENGKAP}</strong>, lahir di {selectedData.TEMPAT_LAHIR} pada {formatDate(selectedData.TANGGAL_LAHIR)}, calon peserta didik SMK Negeri 1 Koba, dengan ini menyatakan bahwa:</p>
+                   <p className="statement-intro">Saya yang bertanda tangan di bawah ini:</p>
+                   <div className="statement-grid">
+                     <div className="print-field">
+                       <span className="print-field-label">Nama Calon Murid</span>
+                       <span className="print-field-colon">:</span>
+                       <span className="print-field-value">{selectedData.NAMA_LENGKAP}</span>
+                     </div>
+                     <div className="print-field">
+                       <span className="print-field-label">Tempat dan Tanggal Lahir</span>
+                       <span className="print-field-colon">:</span>
+                       <span className="print-field-value">{selectedData.TEMPAT_LAHIR}, {formatDate(selectedData.TANGGAL_LAHIR)}</span>
+                     </div>
+                     <div className="print-field">
+                       <span className="print-field-label">Jenis Kelamin</span>
+                       <span className="print-field-colon">:</span>
+                       <span className="print-field-value">{selectedData.JENIS_KELAMIN}</span>
+                     </div>
+                     <div className="print-field">
+                       <span className="print-field-label">Agama</span>
+                       <span className="print-field-colon">:</span>
+                       <span className="print-field-value">{selectedData.AGAMA}</span>
+                     </div>
+                     <div className="print-field">
+                       <span className="print-field-label">Asal Sekolah</span>
+                       <span className="print-field-colon">:</span>
+                       <span className="print-field-value">{selectedData.ASAL_SMP}</span>
+                     </div>
+                     <div className="print-field">
+                       <span className="print-field-label">Nama Orang Tua / Wali</span>
+                       <span className="print-field-colon">:</span>
+                       <span className="print-field-value">{selectedData.NAMA_AYAH} {selectedData.NAMA_WALI || ''}</span>
+                     </div>
+                     <div className="print-field full-width">
+                       <span className="print-field-label">Alamat Rumah</span>
+                       <span className="print-field-colon">:</span>
+                       <span className="print-field-value">{selectedData.ALAMAT}</span>
+                     </div>
+                     <div className="print-field">
+                       <span className="print-field-label">Nomor Telp / HP</span>
+                       <span className="print-field-colon">:</span>
+                       <span className="print-field-value">{selectedData.NOMOR_TELEPON || selectedData.TELEPON_AYAH || ''}</span>
+                     </div>
+                   </div>
+
                    <div className="statement-content">
+                     <p>Dengan ini menyatakan bahwa:</p>
                      <ol className="statement-list">
                        <li>Saya dengan sadar dan tanpa paksaan dari pihak manapun bersungguh-sungguh untuk mendaftar sebagai Peserta Didik SMK Negeri 1 Koba Tahun Pelajaran 2026/2027 serta mengikuti dan mentaati dengan sungguh-sungguh setiap prosedur pendaftaran di SMK Negeri 1 Koba sesuai Sistem Penerimaan Murid Baru (SPMB).</li>
                        <li>Setelah saya dinyatakan diterima sebagai Peserta Didik SMK Negeri 1 Koba maka saya akan mentaati dan melaksanakan Tata Tertib SMK Negeri 1 Koba yang berlaku dan bersedia menerima sanksi dan dikembalikan kepada Orang Tua /dikeluarkan apabila saya melanggar Tata Tertib SMK Negeri 1 Koba.</li>
@@ -394,14 +450,15 @@ const PrintPage = ({ data, onBack }) => {
                      </ol>
                      <p className="statement-closing">Demikian Surat Pernyataan ini saya buat dengan sebenarnya secara sadar tanpa paksaan dari pihak manapun dan dengan penuh rasa tanggung jawab.</p>
                    </div>
-                   <div style={{display:'flex', flexDirection:'row', justifyContent:'space-around', alignItems:'flex-start', marginTop:'20px'}}>
+
+                   <div style={{display:'flex', flexDirection:'row', justifyContent:'space-around', alignItems:'flex-start', marginTop:'40px'}}>
                      <div style={{textAlign:'center', width:'200px'}}>
-                       <p style={{marginBottom:'40px', fontWeight:'600', fontSize:'14px'}}>Orang Tua / Wali</p>
+                       <p style={{marginBottom:'60px', fontWeight:'600', fontSize:'14px'}}>Orang Tua / Wali</p>
                        <div style={{borderBottom:'2px solid #333', width:'200px', marginBottom:'8px'}}></div>
                        <p style={{fontSize:'12px', color:'#666', fontStyle:'italic'}}>{selectedData.NAMA_AYAH}</p>
                      </div>
                      <div style={{textAlign:'center', width:'200px'}}>
-                       <p style={{marginBottom:'40px', fontWeight:'600', fontSize:'14px'}}>Calon Peserta Didik</p>
+                       <p style={{marginBottom:'60px', fontWeight:'600', fontSize:'14px'}}>Calon Peserta Didik</p>
                        <div style={{borderBottom:'2px solid #333', width:'200px', marginBottom:'8px'}}></div>
                        <p style={{fontSize:'12px', color:'#666', fontStyle:'italic'}}>{selectedData.NAMA_LENGKAP}</p>
                      </div>
@@ -446,27 +503,30 @@ const PrintPage = ({ data, onBack }) => {
          .signature-box p { margin-bottom: 40px; font-weight: 600; }
          .signature-line { border-bottom: 2px solid #333; width: 200px; }
          /* Surat Pernyataan Styles */
-         .surat-pernyataan { }
-         .statement-info { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
-         .statement-intro { font-weight: 600; margin-bottom: 10px; font-size: 13px; }
-         .statement-grid { display: flex; flex-direction: column; gap: 5px; margin-bottom: 15px; }
+         .surat-pernyataan { 
+           page-break-before: always; 
+           page-break-after: always; 
+         }
+         .statement-info { background: #f8f9fa; padding: 25px; border-radius: 8px; margin-bottom: 25px; }
+         .statement-intro { font-weight: 600; margin-bottom: 15px; font-size: 14px; }
+         .statement-grid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 25px; }
          .statement-grid .print-field { grid-template-columns: 200px 10px 1fr; }
          .statement-grid .print-field-label { font-weight: 600; color: #333; }
-         .statement-content { margin: 15px 0; }
+         .statement-content { margin: 25px 0; }
          .statement-list { 
-           margin: 10px 0; 
+           margin: 15px 0; 
            padding-left: 20px; 
-           line-height: 1.6; 
-           font-size: 12px; 
+           line-height: 1.8; 
+           font-size: 13px; 
            color: #333;
          }
-         .statement-list li { margin-bottom: 8px; text-align: justify; }
+         .statement-list li { margin-bottom: 12px; text-align: justify; }
          .statement-closing { 
-           margin-top: 12px; 
+           margin-top: 20px; 
            font-style: normal; 
-           font-size: 12px; 
+           font-size: 13px; 
            color: #555; 
-           line-height: 1.5;
+           line-height: 1.6;
          }
          .statement-signature { 
            display: flex; 
@@ -490,8 +550,7 @@ const PrintPage = ({ data, onBack }) => {
            .print-controls { display: none !important; }
            .print-preview-wrapper { box-shadow: none; }
            .printable-document { padding: 0; margin-top: 0cm; }
-           .print-section { margin-bottom: 15px; }
-           .surat-pernyataan { }
+           .surat-pernyataan { page-break-after: always; }
          }
          @media (max-width: 768px) {
            .top-nav { flex-direction: column; gap: 15px; }

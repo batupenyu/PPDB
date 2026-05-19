@@ -349,21 +349,6 @@ const FormPage = ({ students, onSubmit, getStudent }) => {
               <label>17. Riwayat Penyakit <span>*</span></label>
               <input type="text" name="PENYAKIT" value={formData.PENYAKIT} onChange={handleChange} placeholder="Contoh: Asma, Diabetes (tulis '-' jika tidak ada)" required />
             </div>
-            <div className="form-group">
-              <label>18. Nama Ayah <span>*</span></label>
-              <input type="text" name="NAMA_AYAH" value={formData.NAMA_AYAH} onChange={handleChange} placeholder="Nama lengkap ayah" required />
-            </div>
-            <div className="form-group">
-              <label>19. Tempat/Tgl Lahir Ayah <span>*</span></label>
-              <div style={{display: 'flex', gap: '10px'}}>
-                <input type="text" name="TEMPAT_LAHIR_AYAH" value={formData.TEMPAT_LAHIR_AYAH} onChange={handleChange} placeholder="Tempat lahir" style={{flex: 1}} required />
-                <input type="date" name="TANGGAL_LAHIR_AYAH" value={formData.TANGGAL_LAHIR_AYAH} onChange={handleChange} style={{flex: 1}} required />
-              </div>
-            </div>
-            <div className="form-group full-width">
-              <label>20. Alamat Ayah <span>*</span></label>
-              <textarea name="ALAMAT_AYAH" value={formData.ALAMAT_AYAH} onChange={handleChange} placeholder="Alamat lengkap ayah" rows="2" required />
-            </div>
           </div>
         </div>
 
@@ -415,6 +400,21 @@ const FormPage = ({ students, onSubmit, getStudent }) => {
           <div className="subsection">
             <h3>Ayah</h3>
             <div className="form-grid">
+              <div className="form-group">
+                <label>Nama <span>*</span></label>
+                <input type="text" name="NAMA_AYAH" value={formData.NAMA_AYAH} onChange={handleChange} placeholder="Nama lengkap ayah" required />
+              </div>
+              <div className="form-group">
+                <label>Tempat/Tgl Lahir <span>*</span></label>
+                <div style={{display:'flex', gap:'8px'}}>
+                  <input type="text" name="TEMPAT_LAHIR_AYAH" value={formData.TEMPAT_LAHIR_AYAH} onChange={handleChange} placeholder="Tempat lahir" required style={{flex:1}} />
+                  <input type="date" name="TANGGAL_LAHIR_AYAH" value={formData.TANGGAL_LAHIR_AYAH} onChange={handleChange} required style={{flex:1}} />
+                </div>
+              </div>
+              <div className="form-group full-width">
+                <label>Alamat <span>*</span></label>
+                <textarea name="ALAMAT_AYAH" value={formData.ALAMAT_AYAH} onChange={handleChange} placeholder="Alamat lengkap" rows="2" required />
+              </div>
               <div className="form-group">
                 <label>Telepon <span>*</span></label>
                 <input type="tel" name="TELEPON_AYAH" value={formData.TELEPON_AYAH} onChange={handleChange} placeholder="Nomor telepon" required />
