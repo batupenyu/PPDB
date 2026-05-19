@@ -250,6 +250,10 @@ h3 {
   margin-bottom: 30px;
 }
 
+.form-section > h2 {
+  margin-bottom: 0.5em;
+}
+
 .subsection {
   background: #f8f9fa;
   padding: 20px;
